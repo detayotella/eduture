@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 DEFAULT_SQLITE_PATH = Path(__file__).resolve().parent.parent / "eduture.db"
+DEFAULT_BANDIT_STATE_PATH = Path(__file__).resolve().parent.parent / "var" / "bandit_state.json"
 
 
 class Settings(BaseSettings):
@@ -31,6 +32,7 @@ class Settings(BaseSettings):
     security_headers_enabled: bool = True
     audit_log_enabled: bool = True
     log_level: str = "INFO"
+    bandit_state_path: Path = DEFAULT_BANDIT_STATE_PATH
 
     @field_validator("cors_origins", mode="before")
     @classmethod

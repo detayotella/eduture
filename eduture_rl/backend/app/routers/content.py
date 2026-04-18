@@ -8,11 +8,10 @@ from ..dependencies import get_current_user
 from ..models import ABTestAssignment, ContentFragment, Learner, LearningStyle
 from ..sample_data import MODULE_SUMMARIES
 from ..schemas import RecommendationRequest, ResponseEnvelope
-from ..engines.contextual_bandit import AdaptiveEngine, LearnerState
+from ..engines.contextual_bandit import AdaptiveEngine, LearnerState, adaptive_engine
 
 router = APIRouter(prefix="/content", tags=["content"])
 rule_engine = AdaptiveEngine(mode="rule")
-rl_engine = AdaptiveEngine(mode="rl", alpha=1.0)
 
 
 @router.get("/modules", response_model=ResponseEnvelope)
@@ -44,16 +43,20 @@ def recommend(payload: RecommendationRequest = Depends(), current_user: Learner 
         learning_style=dominant_style,
         topic_difficulty=payload.topic_difficulty,
     )
-    engine = rl_engine if assignment and assignment.group_assignment == "rl_based" else rule_engine
+    engine = adaptive_engine if assignment and assignment.group_assignment == "rl_based" else rule_engine
     content_type = engine.get_next_content(learner_state)
     query = db.query(ContentFragment).filter(ContentFragment.content_type == content_type, ContentFragment.is_active.is_(True)).order_by(ContentFragment.sequence_order.asc())
     fragment = query.first() or db.query(ContentFragment).filter(ContentFragment.is_active.is_(True)).order_by(ContentFragment.sequence_order.asc()).first()
     if fragment is None:
         raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "No content available", "details": []})
+    engine_source = "rl" if assignment and assignment.group_assignment == "rl_based" else "rule"
     return ResponseEnvelope(
         data={
             "group": assignment.group_assignment if assignment else "rule_based",
+            "engine_source": engine_source,
+            "is_rl_assignment": engine_source == "rl",
             "recommended_content_type": content_type,
+            "last_route": adaptive_engine.get_learner_route(str(current_user.id)),
             "content": {
                 "id": fragment.id,
                 "module_id": fragment.module_id,
@@ -65,6 +68,24 @@ def recommend(payload: RecommendationRequest = Depends(), current_user: Learner 
                 "difficulty": fragment.difficulty,
                 "estimated_time_minutes": fragment.estimated_time_minutes,
             },
+        }
+    )
+
+
+@router.get("/recommendation-status", response_model=ResponseEnvelope)
+def recommendation_status(current_user: Learner = Depends(get_current_user), db: Session = Depends(get_db)):
+    style_row = db.query(LearningStyle).filter(LearningStyle.learner_id == current_user.id).first()
+    assignment = db.query(ABTestAssignment).filter(ABTestAssignment.learner_id == current_user.id).first()
+    engine_source = "rl" if assignment and assignment.group_assignment == "rl_based" else "rule"
+    return ResponseEnvelope(
+        data={
+            "learner_id": current_user.id,
+            "dominant_style": style_row.dominant_style if style_row else None,
+            "assignment_group": assignment.group_assignment if assignment else "rule_based",
+            "engine_source": engine_source,
+            "is_rl_assignment": engine_source == "rl",
+            "last_route": adaptive_engine.get_learner_route(str(current_user.id)),
+            "engine_snapshot": adaptive_engine.snapshot(),
         }
     )
 

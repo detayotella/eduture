@@ -7,12 +7,11 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..dependencies import get_current_user
-from ..engines.contextual_bandit import AdaptiveEngine, LearnerState, RewardCalculator
+from ..engines.contextual_bandit import LearnerState, RewardCalculator, adaptive_engine
 from ..models import ABTestAssignment, ContentFragment, Interaction, Learner, LearningStyle
 from ..schemas import InteractionRequest, ResponseEnvelope
 
 router = APIRouter(prefix="/interaction", tags=["interaction"])
-rl_engine = AdaptiveEngine(mode="rl", alpha=1.0)
 
 
 def _bucket_activity(count: int) -> str:
@@ -60,7 +59,7 @@ def record_interaction(payload: InteractionRequest, request: Request, current_us
             "is_revisit": payload.is_revisit,
         }
     )
-    rl_engine.record_interaction(state, fragment.content_type, reward)
+    adaptive_engine.record_interaction(state, fragment.content_type, reward)
     row = Interaction(
         learner_id=current_user.id,
         content_id=fragment.id,
@@ -85,7 +84,7 @@ def record_interaction(payload: InteractionRequest, request: Request, current_us
     )
     db.add(row)
     db.commit()
-    return ResponseEnvelope(data={"interaction_id": row.id, "reward": reward, "recommended_content_type": fragment.content_type})
+    return ResponseEnvelope(data={"interaction_id": row.id, "reward": reward, "recommended_content_type": fragment.content_type, "last_route": adaptive_engine.get_learner_route(str(current_user.id))})
 
 
 @router.get("/summary", response_model=ResponseEnvelope)
