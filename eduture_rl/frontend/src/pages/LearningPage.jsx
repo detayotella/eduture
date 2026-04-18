@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { learningContent } from '../constants/learningData';
+import api from '../services/api';
+import { learningContent, getCurrentLearnerId } from '../constants/learningData';
+import { useAuth } from '../context/AuthContext';
 
 export default function LearningPage() {
   const { topicId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const content = learningContent[topicId] || learningContent['computer-basics'];
   const [contentType, setContentType] = useState('theory');
+  
+  // Timer states
+  const [theoryTimer, setTheoryTimer] = useState(12 * 60); // 12 minutes
+  const [activityTimer, setActivityTimer] = useState(8 * 60 + 45); // 8:45
+  const [exerciseTimer, setExerciseTimer] = useState(4 * 60 + 20); // 4:20
+  
+  // State for interactions
+  const [theoryMarkedAsRead, setTheoryMarkedAsRead] = useState(false);
+  const [activityHintShown, setActivityHintShown] = useState(false);
+
+  // Timer countdown effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (contentType === 'theory' && theoryTimer > 0) {
+        setTheoryTimer((prev) => Math.max(0, prev - 1));
+      } else if (contentType === 'activity' && activityTimer > 0) {
+        setActivityTimer((prev) => Math.max(0, prev - 1));
+      } else if (contentType === 'exercise' && exerciseTimer > 0) {
+        setExerciseTimer((prev) => Math.max(0, prev - 1));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [contentType, theoryTimer, activityTimer, exerciseTimer]);
 
   const exerciseOptions = ['Monitor', 'Printer', 'Keyboard', 'Speakers'];
   const correctExerciseOption = 'Keyboard';
@@ -49,8 +76,38 @@ export default function LearningPage() {
     return false;
   };
 
+  const formatTimer = (seconds) => {
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    return `${mins}:${secs}`;
+  };
+
+  const handleMarkAsRead = async () => {
+    try {
+      await api.post('/interaction/record', {
+        learner_id: getCurrentLearnerId(user),
+        content_id: 1,
+        completed: true,
+        quiz_score: 100,
+        expected_time: 12,
+        actual_time: 12 - theoryTimer / 60,
+        is_revisit: false,
+        scroll_depth: 0.9,
+        click_count: 3,
+      });
+      setTheoryMarkedAsRead(true);
+    } catch (error) {
+      console.error('Error marking as read:', error);
+      setTheoryMarkedAsRead(true);
+    }
+  };
+
+  const handleNeedHint = () => {
+    setActivityHintShown(true);
+  };
+
   const progressWidth = contentType === 'theory' ? '30%' : contentType === 'activity' ? '65%' : '90%';
-  const timerText = contentType === 'theory' ? '12:00' : contentType === 'activity' ? '08:45' : '04:20';
+  const timerText = contentType === 'theory' ? formatTimer(theoryTimer) : contentType === 'activity' ? formatTimer(activityTimer) : formatTimer(exerciseTimer);
   const moduleLabel = contentType === 'theory' ? 'Computer Essentials' : contentType === 'activity' ? 'Hardware Essentials' : 'Hardware Basics';
 
   return (
@@ -117,9 +174,14 @@ export default function LearningPage() {
               </p>
 
               <div className="lx-cta-row">
-                <button className="lx-cta" type="button">
-                  <span className="material-symbols-outlined">check_circle</span>
-                  Mark as Read
+                <button 
+                  className={`lx-cta ${theoryMarkedAsRead ? 'lx-cta-done' : ''}`} 
+                  type="button"
+                  onClick={handleMarkAsRead}
+                  disabled={theoryMarkedAsRead}
+                >
+                  <span className="material-symbols-outlined">{theoryMarkedAsRead ? 'check_circle' : 'check_circle'}</span>
+                  {theoryMarkedAsRead ? 'Marked as Read' : 'Mark as Read'}
                 </button>
               </div>
             </article>
@@ -219,9 +281,9 @@ export default function LearningPage() {
               </div>
             </div>
 
-            <button className="lx-hint" type="button">
+            <button className="lx-hint" type="button" onClick={handleNeedHint}>
               <span className="material-symbols-outlined">lightbulb</span>
-              {activeDragItem ? 'Click a description to place selected component' : 'Need a hint? Select or drag a component first.'}
+              {activityHintShown ? 'Hint: Try dragging RAM to the Memory slot and Hard Drive to Storage.' : activeDragItem ? 'Click a description to place selected component' : 'Need a hint? Select or drag a component first.'}
             </button>
           </section>
         ) : null}
