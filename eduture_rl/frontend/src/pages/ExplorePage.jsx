@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import AppShell from '../components/layout/AppShell';
+import DashboardShell from '../components/layout/DashboardShell';
 import { Pill, SectionHeader } from '../components/ui/Cards';
 
 export default function ExplorePage() {
@@ -11,7 +11,12 @@ export default function ExplorePage() {
     ];
 
     return (
-        <AppShell title="Explore" subtitle="Discovery hub" actions={<Pill tone="brand">Personalized picks</Pill>}>
+        <DashboardShell>
+            <header className="db-header">
+                <h1>Explore</h1>
+                <p>Discovery hub</p>
+            </header>
+
             <section className="fx-hero fx-hero-explore">
                 <div>
                     <div className="fx-kicker">Explore</div>
@@ -32,6 +37,6 @@ export default function ExplorePage() {
                     </article>
                 ))}
             </div>
-        </AppShell>
+        </DashboardShell>
     );
 }

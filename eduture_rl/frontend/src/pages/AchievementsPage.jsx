@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import AppShell from '../components/layout/AppShell';
+import DashboardShell from '../components/layout/DashboardShell';
 import api from '../services/api';
 import { MetricCard, Pill, SectionHeader, SurfaceCard } from '../components/ui/Cards';
 
@@ -57,7 +57,12 @@ export default function AchievementsPage() {
     ];
 
     return (
-        <AppShell title="Achievements" subtitle="Mastery milestones" actions={<Pill tone="brand">{newHighlights} new highlights</Pill>}>
+        <DashboardShell>
+            <header className="db-header">
+                <h1>Achievements</h1>
+                <p>Mastery milestones</p>
+            </header>
+
             <div className="metric-grid">
                 <MetricCard label="Badges" value={String(badgesEarned)} note="Total earned" />
                 <MetricCard label="Streak" value={`${streakDays}d`} note="Current run" accent="secondary" />
@@ -79,6 +84,6 @@ export default function AchievementsPage() {
             <div style={{ marginTop: '16px' }}>
                 <NavLink to="/assessment/pre-test" className="btn btn-primary">Take next checkpoint</NavLink>
             </div>
-        </AppShell>
+        </DashboardShell>
     );
 }

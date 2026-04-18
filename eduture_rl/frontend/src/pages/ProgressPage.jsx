@@ -1,8 +1,11 @@
 import React from 'react';
-import AppShell from '../components/layout/AppShell';
+import { useNavigate } from 'react-router-dom';
+import DashboardShell from '../components/layout/DashboardShell';
 import { styleMeta } from '../constants/learningData';
 
 export default function ProgressPage() {
+    const navigate = useNavigate();
+
     const formatRelativeTime = (timestamp) => {
         const diffMs = Date.now() - timestamp.getTime();
         const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -21,6 +24,69 @@ export default function ProgressPage() {
             return 'Yesterday';
         }
         return `${diffDays} days ago`;
+    };
+
+    const exportData = () => {
+        const exportDataObj = {
+            exportDate: new Date().toISOString(),
+            learner: {
+                stats: {
+                    studyTime: '12.5 hrs',
+                    averageScore: '84%',
+                    topicsCompleted: '15/20',
+                    currentStreak: '5 days',
+                },
+                styleBalance: {
+                    activist: 65,
+                    reflector: 85,
+                    theorist: 45,
+                    pragmatist: 55,
+                },
+            },
+            activityLog: {
+                weeklyHours: [
+                    { day: 'MON', hours: 1.2 },
+                    { day: 'TUE', hours: 2.1 },
+                    { day: 'WED', hours: 3.2 },
+                    { day: 'THU', hours: 1.7 },
+                    { day: 'FRI', hours: 2.5 },
+                    { day: 'SAT', hours: 0.8 },
+                    { day: 'SUN', hours: 0.4 },
+                ],
+            },
+            recentActivity: [
+                {
+                    title: 'Module Completed',
+                    detail: 'Advanced Theoretical Frameworks',
+                    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                },
+                {
+                    title: 'Assessment Submitted',
+                    detail: 'Cognitive Bias Identification (Score: 92%)',
+                    timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
+                },
+                {
+                    title: 'Material Reviewed',
+                    detail: 'Reading: History of Structuralism',
+                    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                },
+            ],
+        };
+
+        const dataStr = JSON.stringify(exportDataObj, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `eduture-progress-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const reviewModules = () => {
+        navigate('/pathways');
     };
 
     const now = new Date();
@@ -71,16 +137,12 @@ export default function ProgressPage() {
     ];
 
     return (
-        <AppShell
-            title="Your Learning Journey"
-            subtitle="Analytics Overview"
-            actions={(
-                <div className="prg-header-actions">
-                    <button type="button" className="btn btn-soft">Export Data</button>
-                    <button type="button" className="btn btn-primary">Review Modules</button>
-                </div>
-            )}
-        >
+        <DashboardShell>
+            <header className="db-header">
+                <h1>Your Learning Journey</h1>
+                <p>Analytics Overview</p>
+            </header>
+
             <div className="prg-stat-grid">
                 {statCards.map((card) => (
                     <article key={card.label} className={`prg-stat-card ${card.accent}`}>
@@ -169,6 +231,6 @@ export default function ProgressPage() {
                     ))}
                 </div>
             </section>
-        </AppShell>
+        </DashboardShell>
     );
 }

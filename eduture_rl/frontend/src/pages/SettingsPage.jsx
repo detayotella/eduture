@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AppShell from '../components/layout/AppShell';
+import DashboardShell from '../components/layout/DashboardShell';
 import { Pill, SectionHeader } from '../components/ui/Cards';
 
 export default function SettingsPage() {
@@ -7,7 +7,12 @@ export default function SettingsPage() {
     const [autoResume, setAutoResume] = useState(true);
 
     return (
-        <AppShell title="Settings" subtitle="Preferences" actions={<Pill tone="neutral">Account controls</Pill>}>
+        <DashboardShell>
+            <header className="db-header">
+                <h1>Settings</h1>
+                <p>Preferences</p>
+            </header>
+
             <section className="fx-hero fx-hero-settings">
                 <div>
                     <div className="fx-kicker">Settings</div>
@@ -46,6 +51,6 @@ export default function SettingsPage() {
                     </button>
                 </label>
             </div>
-        </AppShell>
+        </DashboardShell>
     );
 }

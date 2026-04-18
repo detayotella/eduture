@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import AppShell from '../components/layout/AppShell';
+import DashboardShell from '../components/layout/DashboardShell';
 import { Pill, SectionHeader } from '../components/ui/Cards';
 
 const pathwayItems = [
@@ -11,7 +11,12 @@ const pathwayItems = [
 
 export default function PathwaysPage() {
     return (
-        <AppShell title="Pathways" subtitle="Learning sequence" actions={<Pill tone="neutral">Adaptive ordering</Pill>}>
+        <DashboardShell>
+            <header className="db-header">
+                <h1>Pathways</h1>
+                <p>Learning sequence</p>
+            </header>
+
             <section className="fx-hero fx-hero-pathways">
                 <div>
                     <div className="fx-kicker">Pathways</div>
@@ -41,6 +46,6 @@ export default function PathwaysPage() {
             <div className="fx-actions-row">
                 <NavLink to="/learn/computer-basics" className="btn btn-primary">Continue active pathway</NavLink>
             </div>
-        </AppShell>
+        </DashboardShell>
     );
 }
