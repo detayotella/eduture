@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: eduture-postgres
+    environment:
+      POSTGRES_DB: eduture
+      POSTGRES_USER: eduture
+      POSTGRES_PASSWORD: eduture
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eduture -d eduture"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: eduture-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SECRET_KEY: change-this-in-production
+      DATABASE_URL: postgresql+psycopg://eduture:eduture@db:5432/eduture
+      CORS_ORIGINS: '["http://localhost:5173"]'
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
