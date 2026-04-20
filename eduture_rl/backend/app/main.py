@@ -11,13 +11,13 @@ from slowapi.extension import _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 
 from .config import get_settings
+from .auth import hash_password
 from .database import SessionLocal
 from .limiter import limiter
 from .logging_config import setup_logging
-from .models import Learner, ContentFragment
+from .models import ContentFragment, Learner
 from .routers import admin, assessment, auth, content, interaction, learning_style
 from .sample_data import seed_content_rows
-from .auth import hash_password
 
 settings = get_settings()
 setup_logging()
@@ -72,13 +72,20 @@ app.include_router(admin.router)
 def startup_event() -> None:
     db = SessionLocal()
     try:
-        admin_user = db.query(Learner).filter(Learner.email == "admin@eduture.local").first()
-        if admin_user is None:
-            db.add(Learner(email="admin@eduture.local", password_hash=hash_password("Admin123!"), full_name="EDUTURE Admin", is_admin=True))
-            db.commit()
-        elif not admin_user.password_hash.startswith("pbkdf2_sha256$"):
-            admin_user.password_hash = hash_password("Admin123!")
-            db.commit()
+        if settings.admin_bootstrap_enabled:
+            if not settings.admin_bootstrap_email or not settings.admin_bootstrap_password:
+                raise RuntimeError("Admin bootstrap is enabled but bootstrap credentials are missing")
+            admin_user = db.query(Learner).filter(Learner.email == settings.admin_bootstrap_email).first()
+            if admin_user is None:
+                db.add(
+                    Learner(
+                        email=settings.admin_bootstrap_email,
+                        password_hash=hash_password(settings.admin_bootstrap_password),
+                        full_name=settings.admin_bootstrap_full_name,
+                        is_admin=True,
+                    )
+                )
+                db.commit()
         if db.query(ContentFragment).count() == 0:
             for fragment in seed_content_rows():
                 db.add(fragment)

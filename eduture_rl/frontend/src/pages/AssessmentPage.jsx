@@ -193,7 +193,7 @@ export default function AssessmentPage() {
                 <div className="asm-meta">
                     <div className="asm-timer">
                         <span className="material-symbols-outlined">timer</span>
-                            <span>{formatCountdown(remainingSeconds)}</span>
+                        <span>{formatCountdown(remainingSeconds)}</span>
                     </div>
                     <div className="asm-counter">{currentIndex + 1} of {totalQuestions}</div>
                 </div>

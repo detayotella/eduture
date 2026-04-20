@@ -33,6 +33,34 @@ class Settings(BaseSettings):
     audit_log_enabled: bool = True
     log_level: str = "INFO"
     bandit_state_path: Path = DEFAULT_BANDIT_STATE_PATH
+    admin_bootstrap_enabled: bool = False
+    admin_bootstrap_email: str | None = None
+    admin_bootstrap_password: str | None = None
+    admin_bootstrap_full_name: str = "EDUTURE Admin"
+
+    @field_validator("secret_key")
+    @classmethod
+    def validate_secret_key(cls, value: str) -> str:
+        secret_key = value.strip()
+        if not secret_key or secret_key.startswith("change-me") or secret_key.startswith("change-this"):
+            raise ValueError("SECRET_KEY must be set to a strong random value")
+        return secret_key
+
+    @field_validator("admin_bootstrap_email")
+    @classmethod
+    def normalize_admin_bootstrap_email(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        email = value.strip().lower()
+        return email or None
+
+    @field_validator("admin_bootstrap_password")
+    @classmethod
+    def validate_admin_bootstrap_password(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        password = value.strip()
+        return password or None
 
     @field_validator("cors_origins", mode="before")
     @classmethod

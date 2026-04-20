@@ -68,7 +68,7 @@ class AuthResponse(BaseModel):
     full_name: str
     is_admin: bool = False
     access_token: str
-    refresh_token: str
+    refresh_token: str | None = None
     token_type: str = "Bearer"
     expires_in: int = 3600
 
@@ -145,7 +145,7 @@ class ContentModuleSummary(BaseModel):
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str = Field(min_length=16, max_length=512)
+    refresh_token: str | None = Field(default=None, min_length=16, max_length=512)
 
 
 class LogoutRequest(BaseModel):

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EDUTURE 2.0 - Learner Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#5516be",
+                    "on-surface-variant": "#424754",
+                    "outline-variant": "#c2c6d6",
+                    "tertiary-fixed-dim": "#d0bcff",
+                    "on-secondary-container": "#1d3989",
+                    "tertiary-fixed": "#e9ddff",
+                    "inverse-surface": "#33302c",
+                    "on-secondary-fixed-variant": "#264191",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e8e1db",
+                    "surface-container-high": "#eee7e0",
+                    "surface-bright": "#fff8f2",
+                    "tertiary": "#6b38d4",
+                    "surface": "#fff8f2",
+                    "primary": "#0051d5",
+                    "secondary-fixed": "#dce1ff",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "background": "#fff8f2",
+                    "outline": "#727785",
+                    "on-primary-container": "#fefcff",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-dim": "#e0d9d2",
+                    "on-secondary-fixed": "#00164e",
+                    "on-background": "#1e1b17",
+                    "on-tertiary-fixed": "#23005c",
+                    "on-surface": "#1e1b17",
+                    "surface-container-highest": "#e8e1db",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "tertiary-container": "#8455ef",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container-low": "#faf2eb",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container": "#f4ede6",
+                    "secondary": "#4059aa",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#b6c4ff",
+                    "on-primary-fixed": "#00174b",
+                    "on-error": "#ffffff",
+                    "secondary-container": "#8fa7fe",
+                    "inverse-on-surface": "#f7efe9",
+                    "primary-container": "#316bf3",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#0053db"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"],
+                    "mono": ["JetBrains Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Typography Scale Utilities */
+        .text-display-lg { font-size: 3.5rem; line-height: 1.1; letter-spacing: -0.02em; }
+        .text-headline-md { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.01em; }
+        .text-title-lg { font-size: 1.375rem; line-height: 1.4; letter-spacing: 0; }
+        .text-body-lg { font-size: 1.0rem; line-height: 1.625; letter-spacing: 0; max-width: 65ch; }
+        .text-label-md { font-size: 0.75rem; line-height: 1.5; letter-spacing: 0.05em; text-transform: uppercase; }
+        
+        /* Custom Shadows */
+        .shadow-ambient {
+            box-shadow: 0 4px 20px rgba(30, 27, 23, 0.04), 0 2px 8px rgba(30, 27, 23, 0.08);
+        }
+    </style>
+</head>
+<body class="flex h-screen bg-background text-on-surface font-body overflow-hidden">
+<!-- Shared Component: SideNavBar -->
+<aside class="h-screen w-64 border-r border-[#c2c6d6]/15 bg-[#faf2eb] flex flex-col py-8 pl-4 shrink-0 z-20 hidden md:flex">
+<div class="px-4 mb-12">
+<span class="text-lg font-black text-[#1e1b17] tracking-tight">EDUTURE 2.0</span>
+</div>
+<div class="px-4 mb-10 flex flex-col gap-3">
+<img alt="User Avatar" class="w-12 h-12 rounded-full border-2 border-[#eee7e0]" data-alt="Close-up professional headshot of a young adult with a thoughtful expression against a warm neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMofZ6l-IiSVXFTbgUrrcOQHSGgfusYMOwHkWRvTCbPDP0nURcsFNKvMXdeGXn8noYnX0rEDMsKQdXbBLYHvnkvI_XC9VdytOuhxbt79ze7OWiDYvtkXJB2j3p_0b56Cll45ieSXd5z6wzUqbvWzOoz2cQpJAc2nw95dlEKqub1qcpITGxACjs8-WAaR5LsBvhaVvKq7cpXe9ka_KDBNZsYg_7mcO8Y6oL_fWixJPKPJUDL9aF1ERw6ZWlHp3_HPIDt9lBYxHDtS-n"/>
+<div>
+<div class="text-[#0051d5] font-inter text-label-md uppercase tracking-wider font-bold mb-0.5">Mastery Level 4</div>
+<div class="text-[#1e1b17]/70 font-inter text-xs">Activist Learner</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2 pr-4 mt-4">
+<!-- Active: Home -->
+<a class="flex items-center gap-4 px-4 py-3.5 bg-[#eee7e0] text-[#0051d5] rounded-r-full font-bold active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-inter text-label-md uppercase tracking-wider">Home</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-4 px-4 py-3.5 text-[#1e1b17]/70 hover:bg-[#eee7e0]/50 transition-all active:translate-x-1 duration-200 rounded-r-full" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-inter text-label-md uppercase tracking-wider">Explore</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3.5 text-[#1e1b17]/70 hover:bg-[#eee7e0]/50 transition-all active:translate-x-1 duration-200 rounded-r-full" href="#">
+<span class="material-symbols-outlined">moving</span>
+<span class="font-inter text-label-md uppercase tracking-wider">Pathways</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3.5 text-[#1e1b17]/70 hover:bg-[#eee7e0]/50 transition-all active:translate-x-1 duration-200 rounded-r-full" href="#">
+<span class="material-symbols-outlined">workspace_premium</span>
+<span class="font-inter text-label-md uppercase tracking-wider">Achievements</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3.5 text-[#1e1b17]/70 hover:bg-[#eee7e0]/50 transition-all active:translate-x-1 duration-200 rounded-r-full" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-inter text-label-md uppercase tracking-wider">Settings</span>
+</a>
+</nav>
+<div class="pr-4 mt-auto">
+<button class="w-full py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg font-bold text-sm shadow-ambient hover:opacity-90 transition-opacity">
+                View Roadmap
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto relative">
+<!-- Floating Glass Header background effect -->
+<div class="sticky top-0 w-full h-24 bg-surface/70 backdrop-blur-[20px] z-10 pointer-events-none absolute"></div>
+<div class="max-w-6xl mx-auto px-8 lg:px-16 pt-20 pb-24 relative z-0">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="text-display-lg font-headline font-bold text-on-surface mb-2">Good morning, Alex.</h1>
+<p class="text-body-lg text-on-surface-variant max-w-2xl">Your cognitive flow is optimal today. Based on your recent deep work in structural logic, we recommend transitioning to creative application to balance your mastery curve.</p>
+</header>
+<!-- Quick Action: Mastery Progression Card -->
+<section class="mb-12">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-ambient border-l-4 border-primary flex flex-col md:flex-row md:items-center justify-between gap-6 transition-transform hover:-translate-y-1 duration-300">
+<div class="flex-1 pl-2">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span class="text-label-md text-primary font-bold">Resume Focus</span>
+</div>
+<h2 class="text-title-lg font-bold text-on-surface mb-4">Systems Architecture: Module 4</h2>
+<div class="flex items-center gap-4 max-w-md">
+<div class="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[68%] rounded-full"></div>
+</div>
+<span class="font-mono text-sm font-bold text-on-surface-variant">68%</span>
+</div>
+</div>
+<button class="shrink-0 px-8 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg font-bold shadow-ambient hover:shadow-lg transition-all">
+                        Continue Learning
+                    </button>
+</div>
+</section>
+<!-- Main Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Left Column (Cognitive Focus) -->
+<div class="lg:col-span-7 flex flex-col gap-10">
+<!-- Today's Recommendation -->
+<div class="bg-surface-container-low rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 group-hover:bg-primary/10 transition-colors duration-700"></div>
+<div class="flex items-start justify-between mb-6 relative z-10">
+<h3 class="text-headline-md font-bold text-on-surface">Curated for You</h3>
+<!-- Adaptive Learning Chip: Activist -->
+<div class="inline-flex items-center gap-2 bg-[#f97316]/10 px-3 py-1.5 rounded-full border border-[#f97316]/20">
+<span class="w-2 h-2 rounded-full bg-[#f97316]"></span>
+<span class="text-[#f97316] text-label-md font-bold">Activist Style</span>
+</div>
+</div>
+<div class="flex gap-6 items-center relative z-10">
+<div class="w-32 h-32 shrink-0 rounded-lg overflow-hidden relative shadow-sm">
+<img alt="Team collaborating" class="w-full h-full object-cover" data-alt="Dynamic shot of young diverse professionals brainstorming creatively around a minimalist table in a sunlit modern studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChH6gOEEiAlGlr50N6Y-ibYlQWfq9hXjpDp5yZO0sZgaOozfVsAZwl-3bzXf7N7RG7VQIGFI_GNu4JbvEdocKkAhH2apMcIcXYd6K9VHhPkFdXSCm7esRxoPTGC-Jjirqo3dSN4ZxzUtJRSweOAB7FoBEfe0aGZMlOMaoFCcUB07LYmE-ysq9DkWWCCjRAUTKAIkY0bKO8EaSB8KBvsOrnHzTe7ApmZzQ9BQszuX9gYHaqX7dNzgpFBOjcRN-O_-7IabsknwR6lu5L"/>
+</div>
+<div>
+<h4 class="text-title-lg font-bold text-on-surface mb-2">Design Thinking in Action</h4>
+<p class="text-body-lg text-on-surface-variant mb-4">Hands-on exercises to apply your theoretical knowledge to real-world interface problems.</p>
+<button class="text-primary font-bold hover:text-primary-container flex items-center gap-1 transition-colors">
+                                    Start Exercise <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Deep Work Content -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 flex flex-col justify-between min-h-[300px] relative overflow-hidden">
+<img alt="Abstract connection" class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-multiply" data-alt="Abstract aerial view of glowing digital nodes and data streams connecting globally over a dark sophisticated background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3GQClOvyiAcb4Sb27ZXasg3QqxhXUWkDRzP-yjEbmDEIxeudqbQr41CYHQJpsN8KXTzYCdEW-aMbfWk0OzPLM2BvwsA2MJQR95fUZz8ioOeTL0CWD3mMxtAiV2AXbI3MxKT7KsxoNSw8X7KBxY9oSXjWm5JpSfJzrXyLmIV-gS6h2Doqq47ns7ZQxN5mByLIKkTL0EeVkjIpYcTqaFIFXnvpz4Y7kI2Uj_W-xCjMSkF90XzuGvG3RxKnepTrV4xo067O9A6LBBlsg"/>
+<div class="relative z-10">
+<div class="text-label-md text-on-surface-variant font-bold mb-4">Upcoming Pathway</div>
+<h3 class="text-headline-md font-bold text-on-surface mb-3 w-4/5">Data Structures &amp; Algorithms</h3>
+<p class="text-body-lg text-on-surface-variant w-3/4">Unlock the foundational logic required for advanced computational thinking.</p>
+</div>
+<div class="relative z-10 mt-8 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">schedule</span>
+<span class="font-mono text-sm text-on-surface-variant">Est. 12 Hours</span>
+</div>
+<button class="bg-surface-container-highest text-on-surface px-6 py-2.5 rounded-md font-bold hover:bg-surface-variant transition-colors">
+                                Preview Syllabus
+                            </button>
+</div>
+</div>
+</div>
+<!-- Right Column (Analytics & State) -->
+<div class="lg:col-span-5 flex flex-col gap-10">
+<!-- Analytics Ring -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-ambient flex flex-col items-center justify-center text-center">
+<h4 class="text-label-md text-on-surface-variant font-bold w-full text-left mb-6">Cognitive Mastery Base</h4>
+<div class="relative w-40 h-40 flex items-center justify-center mb-4">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Background Circle -->
+<circle class="text-surface-variant" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-width="6"></circle>
+<!-- Progress Circle -->
+<circle class="text-primary" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-dasharray="282.7" stroke-dashoffset="62.19" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-mono text-3xl font-bold text-on-surface">78%</span>
+</div>
+</div>
+<p class="text-body-lg text-on-surface-variant">You are 12% ahead of your cohort's average progression.</p>
+</div>
+<!-- Weekly Streak Heatmap -->
+<div class="bg-surface-container-low rounded-xl p-8">
+<div class="flex items-center justify-between mb-6">
+<h4 class="text-label-md text-on-surface-variant font-bold">Activity Density</h4>
+<span class="font-mono text-xs text-primary font-bold">14 Day Streak</span>
+</div>
+<!-- Simulated Heatmap Grid -->
+<div class="grid grid-cols-7 gap-2">
+<!-- Week 1 -->
+<div class="w-full aspect-square rounded bg-primary/20"></div>
+<div class="w-full aspect-square rounded bg-primary/50"></div>
+<div class="w-full aspect-square rounded bg-primary"></div>
+<div class="w-full aspect-square rounded bg-primary/80"></div>
+<div class="w-full aspect-square rounded bg-primary/30"></div>
+<div class="w-full aspect-square rounded bg-surface-variant"></div>
+<div class="w-full aspect-square rounded bg-primary/10"></div>
+<!-- Week 2 -->
+<div class="w-full aspect-square rounded bg-primary/60"></div>
+<div class="w-full aspect-square rounded bg-primary"></div>
+<div class="w-full aspect-square rounded bg-primary/90"></div>
+<div class="w-full aspect-square rounded bg-primary/40"></div>
+<div class="w-full aspect-square rounded bg-primary/70"></div>
+<div class="w-full aspect-square rounded bg-primary"></div>
+<div class="w-full aspect-square rounded border-2 border-primary border-dashed bg-transparent relative flex items-center justify-center">
+<span class="w-1.5 h-1.5 bg-primary rounded-full absolute"></span>
+</div>
+</div>
+</div>
+<!-- Upcoming Assessments List -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15">
+<h4 class="text-label-md text-on-surface-variant font-bold mb-6">Critical Checkpoints</h4>
+<div class="flex flex-col gap-6">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">quiz</span>
+</div>
+<div>
+<h5 class="text-on-surface font-bold text-sm mb-1">Architecture Quiz</h5>
+<p class="font-mono text-xs text-on-surface-variant">Tomorrow, 10:00 AM</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface shrink-0">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+<div>
+<h5 class="text-on-surface font-bold text-sm mb-1">Peer Code Review</h5>
+<p class="font-mono text-xs text-on-surface-variant">Friday, 14:00 PM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

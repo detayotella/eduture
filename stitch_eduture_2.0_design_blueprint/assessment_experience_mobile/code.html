@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Intellectual Atelier - Assess</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#fefcff",
+                        "inverse-primary": "#b4c5ff",
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "surface-bright": "#fff8f2",
+                        "error-container": "#ffdad6",
+                        "primary": "#0051d5",
+                        "on-surface": "#1e1b17",
+                        "surface-container-highest": "#e8e1db",
+                        "on-secondary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "outline": "#727785",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#6b38d4",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#dce1ff",
+                        "primary-container": "#316bf3",
+                        "surface": "#fff8f2",
+                        "on-tertiary-fixed-variant": "#5516be",
+                        "on-primary-fixed": "#00174b",
+                        "on-secondary-fixed-variant": "#264191",
+                        "on-background": "#1e1b17",
+                        "background": "#fff8f2",
+                        "on-primary": "#ffffff",
+                        "secondary": "#4059aa",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary-fixed": "#e9ddff",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-tint": "#0053db",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-container": "#8455ef",
+                        "surface-container-low": "#faf2eb",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary-container": "#8fa7fe",
+                        "surface-variant": "#e8e1db",
+                        "secondary-fixed-dim": "#b6c4ff",
+                        "on-surface-variant": "#424754",
+                        "on-secondary-container": "#1d3989",
+                        "surface-container": "#f4ede6",
+                        "on-tertiary-fixed": "#23005c",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f7efe9",
+                        "surface-dim": "#e0d9d2",
+                        "surface-container-high": "#eee7e0",
+                        "inverse-surface": "#33302c",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "md": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.25rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "safe": "env(safe-area-inset-bottom)"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            font-family: theme('fontFamily.body');
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .glass-panel {
+            background-color: rgba(255, 248, 242, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .primary-gradient-text {
+            background: linear-gradient(135deg, theme('colors.primary'), theme('colors.primary-container'));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .primary-gradient-bg {
+            background: linear-gradient(135deg, theme('colors.primary'), theme('colors.primary-container'));
+        }
+
+        .ambient-shadow {
+            box-shadow: 0 4px 20px rgba(30, 27, 23, 0.04), 0 2px 8px rgba(30, 27, 23, 0.08);
+        }
+
+        /* Fluid typography classes based on design system */
+        .display-lg { font-size: 3.5rem; line-height: 1.1; letter-spacing: -0.02em; }
+        .headline-md { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.01em; }
+        .title-lg { font-size: 1.375rem; line-height: 1.4; letter-spacing: 0; }
+        .body-lg { font-size: 1rem; line-height: 1.625; letter-spacing: 0; }
+        .label-md { font-size: 0.75rem; line-height: 1.5; letter-spacing: 0.05em; text-transform: uppercase; }
+
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="h-screen w-full flex flex-col overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation (Task-focused, suppressed main nav) -->
+<header class="w-full top-0 sticky flex items-center justify-between px-6 h-16 bg-[#fff8f2] dark:bg-stone-950 font-inter antialiased headline-md tracking-tight tonal-transition-no-border z-40">
+<button aria-label="Close Assessment" class="text-stone-500 hover:text-stone-900 transition-colors flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<div class="text-xl font-bold tracking-tighter text-stone-900 dark:text-stone-50 primary-gradient-text">
+            Intellectual Atelier
+        </div>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col w-full max-w-2xl mx-auto px-6 overflow-y-auto pb-32 pt-4 relative">
+<!-- Assessment Meta -->
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<div class="flex flex-col">
+<span class="font-mono text-xs font-medium text-primary tracking-widest uppercase">Cognitive Dynamics</span>
+<h2 class="text-sm font-semibold text-on-surface">Question 5 of 18</h2>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-full ambient-shadow">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="timer">timer</span>
+<span class="font-mono text-sm font-medium text-on-surface">14:22</span>
+</div>
+</div>
+<!-- Progress Bar (Subtle) -->
+<div class="w-full h-1 bg-surface-variant rounded-full mb-10 overflow-hidden">
+<div class="h-full primary-gradient-bg rounded-full w-[27%] transition-all duration-500"></div>
+</div>
+<!-- Question Container -->
+<div class="mb-10">
+<!-- Optional Context/Category Tag -->
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-[#0ea5e9]/10 rounded-md mb-4 border border-[#0ea5e9]/20">
+<div class="w-1.5 h-1.5 rounded-full bg-[#0ea5e9]"></div>
+<span class="text-[10px] font-semibold text-[#0ea5e9] tracking-wider uppercase">Theorist Pattern</span>
+</div>
+<h1 class="title-lg font-bold text-on-surface mb-6">
+                When analyzing a complex system with multiple interacting variables, which cognitive approach best ensures a robust understanding of emergent behaviors?
+            </h1>
+<p class="body-lg text-on-surface-variant text-sm max-w-[65ch]">
+                Consider the implications of non-linear dynamics where local interactions produce unpredictable global states. Select the methodology that provides the most reliable predictive framework.
+            </p>
+</div>
+<!-- Answer Options -->
+<div class="flex flex-col gap-4 mb-8">
+<!-- Option 1 (Unselected) -->
+<button class="w-full text-left p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/15 hover:bg-surface-container-low transition-colors ambient-shadow group relative overflow-hidden flex items-start gap-4">
+<div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center mt-0.5 group-hover:border-primary/50 transition-colors">
+</div>
+<div class="flex-1">
+<span class="body-lg text-on-surface block">Isolating individual variables for sequential testing to determine direct causation.</span>
+</div>
+</button>
+<!-- Option 2 (Selected State) -->
+<button class="w-full text-left p-5 rounded-xl bg-surface-container-high border border-primary/30 ambient-shadow group relative overflow-hidden flex items-start gap-4 ring-1 ring-primary/20">
+<div class="absolute left-0 top-0 bottom-0 w-1 primary-gradient-bg"></div>
+<div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center mt-0.5 bg-primary/10">
+<div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+</div>
+<div class="flex-1">
+<span class="body-lg text-on-surface font-medium block">Constructing computational models that simulate concurrent interactions across all known nodes.</span>
+</div>
+</button>
+<!-- Option 3 (Unselected) -->
+<button class="w-full text-left p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/15 hover:bg-surface-container-low transition-colors ambient-shadow group relative overflow-hidden flex items-start gap-4">
+<div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center mt-0.5 group-hover:border-primary/50 transition-colors">
+</div>
+<div class="flex-1">
+<span class="body-lg text-on-surface block">Applying historical precedents from structurally similar systems to predict current trajectories.</span>
+</div>
+</button>
+<!-- Option 4 (Unselected) -->
+<button class="w-full text-left p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/15 hover:bg-surface-container-low transition-colors ambient-shadow group relative overflow-hidden flex items-start gap-4">
+<div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center mt-0.5 group-hover:border-primary/50 transition-colors">
+</div>
+<div class="flex-1">
+<span class="body-lg text-on-surface block">Relying on intuitive synthesis derived from extensive domain expertise and pattern recognition.</span>
+</div>
+</button>
+</div>
+</main>
+<!-- Assessment Footer (Task-focused controls) -->
+<div class="fixed bottom-0 left-0 w-full glass-panel z-50 rounded-t-2xl px-6 py-4 pb-safe flex justify-between items-center shadow-[0_-4px_20px_rgba(30,27,23,0.04)] border-t border-white/20">
+<button aria-label="Previous Question" class="flex items-center justify-center w-12 h-12 rounded-full bg-transparent hover:bg-surface-container-high text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<!-- Question Grid Trigger -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors text-sm font-medium ambient-shadow border border-outline-variant/15">
+<span class="material-symbols-outlined text-[20px]" data-icon="grid_view">grid_view</span>
+            Grid
+        </button>
+<button aria-label="Flag for review" class="flex items-center justify-center w-12 h-12 rounded-full bg-transparent hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="flag">flag</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 rounded-md primary-gradient-bg text-on-primary font-medium text-sm hover:shadow-lg transition-all ambient-shadow group">
+            Next
+            <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</body></html>

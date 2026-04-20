@@ -1,50 +1,44 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import api from '../services/api';
+import api, { refreshSession, setAccessToken } from '../services/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const raw = localStorage.getItem('eduture_user');
-    return raw ? JSON.parse(raw) : null;
-  });
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const bootstrap = async () => {
-      const token = localStorage.getItem('eduture_access_token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
       try {
+        await refreshSession();
         const response = await api.get('/auth/me');
         setUser(response.data.data);
-        localStorage.setItem('eduture_user', JSON.stringify(response.data.data));
       } catch {
         setUser(null);
-        localStorage.removeItem('eduture_access_token');
-        localStorage.removeItem('eduture_refresh_token');
-        localStorage.removeItem('eduture_user');
-        localStorage.removeItem('eduture_learner_id');
+        setAccessToken(null);
       } finally {
         setLoading(false);
       }
     };
     bootstrap();
+
+    const handleAuthInvalidated = () => {
+      setUser(null);
+      setAccessToken(null);
+    };
+
+    window.addEventListener('eduture-auth-invalidated', handleAuthInvalidated);
+    return () => window.removeEventListener('eduture-auth-invalidated', handleAuthInvalidated);
   }, []);
 
   const saveAuth = (payload) => {
-    localStorage.setItem('eduture_access_token', payload.access_token);
-    localStorage.setItem('eduture_refresh_token', payload.refresh_token);
-    localStorage.setItem('eduture_learner_id', String(payload.learner_id));
+    setAccessToken(payload.access_token);
     const userPayload = {
       learner_id: payload.learner_id,
       email: payload.email,
       full_name: payload.full_name,
       is_admin: Boolean(payload.is_admin),
     };
-    localStorage.setItem('eduture_user', JSON.stringify(userPayload));
     setUser(userPayload);
   };
 
@@ -60,12 +54,15 @@ export function AuthProvider({ children }) {
     return response.data.data;
   };
 
-  const logout = () => {
-    localStorage.removeItem('eduture_access_token');
-    localStorage.removeItem('eduture_refresh_token');
-    localStorage.removeItem('eduture_user');
-    localStorage.removeItem('eduture_learner_id');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout', {});
+    } catch {
+      // The local session still needs to be cleared even if revocation fails.
+    } finally {
+      setAccessToken(null);
+      setUser(null);
+    }
   };
 
   return (

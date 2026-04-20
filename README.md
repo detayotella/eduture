@@ -21,6 +21,7 @@ EDUTURE 2.0 is a modern, full-stack adaptive learning management system designed
 ### Tech Stack
 
 **Backend:**
+
 - FastAPI (modern async Python framework)
 - PostgreSQL (persistent relational DB)
 - SQLAlchemy ORM + Alembic migrations
@@ -28,12 +29,14 @@ EDUTURE 2.0 is a modern, full-stack adaptive learning management system designed
 - JWT-based authentication with secure token refresh
 
 **Frontend:**
+
 - React 18 + Vite (fast build tooling)
 - React Router 6 (client-side routing)
 - Axios (HTTP client with interceptors)
 - CSS3 (component-scoped styling)
 
 **Deployment:**
+
 - Docker + Docker Compose
 - Alembic for database schema management
 - Environment-based configuration
@@ -71,6 +74,7 @@ eduture_rl/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker & Docker Compose (recommended)
 - OR Node.js 18+ and Python 3.9+
 
@@ -88,6 +92,7 @@ docker compose up --build
 ### Option 2: Manual Setup
 
 **Backend:**
+
 ```bash
 cd eduture_rl/backend
 python3 -m venv .venv
@@ -99,6 +104,7 @@ uvicorn app.main:app --reload
 ```
 
 **Frontend:**
+
 ```bash
 cd eduture_rl/frontend
 npm install
@@ -107,14 +113,15 @@ npm run dev
 
 ## 🔐 Default Credentials
 
-| Role  | Email                  | Password   |
-|-------|------------------------|-----------|
-| Admin | admin@eduture.local    | Admin123! |
-| User  | (Register via UI)      | (Your choice) |
+| Role  | Email               | Password      |
+| ----- | ------------------- | ------------- |
+| Admin | admin@eduture.local | Admin123!     |
+| User  | (Register via UI)   | (Your choice) |
 
 ## 📋 Features
 
 ### 🎓 Learner Experience
+
 - **Intelligent Dashboard** with activity heatmap and streak tracking
 - **Dynamic Questionnaire** to assess learning style (Kolb model)
 - **Adaptive Content Recommendations** based on performance and style
@@ -123,6 +130,7 @@ npm run dev
 - **Mastery Badges** and cohort ranking
 
 ### 👨‍💼 Admin Experience
+
 - **Learner Management** and progress oversight
 - **Assessment Analytics** with score distributions
 - **Content Management** and A/B test configuration
@@ -130,6 +138,7 @@ npm run dev
 - **Activity Monitoring** with detailed interaction records
 
 ### 🔧 Backend Capabilities
+
 - JWT authentication with refresh token rotation
 - Content recommendation engine (contextual bandit)
 - Learning style assessment via questionnaire
@@ -149,12 +158,14 @@ For comprehensive setup, configuration, and API documentation, see:
 ## 🧪 Testing
 
 ### Backend Tests
+
 ```bash
 cd eduture_rl/backend
 pytest
 ```
 
 ### Frontend Build
+
 ```bash
 cd eduture_rl/frontend
 npm run build
@@ -199,25 +210,30 @@ See `eduture_rl/backend/.env.example` for all available options.
 ## 📊 API Overview
 
 ### Authentication
+
 - `POST /auth/register` – Create learner account
 - `POST /auth/login` – Authenticate and get tokens
 - `POST /auth/refresh` – Refresh access token
 - `POST /auth/logout` – Invalidate refresh token
 
 ### Content & Recommendations
+
 - `POST /learning-style/submit` – Submit questionnaire responses
 - `GET /content/recommend` – Get personalized content recommendations
 - `GET /content/summary/:module_id` – Fetch module details
 
 ### Interactions & Analytics
+
 - `POST /interaction/record` – Log learner interaction
 - `GET /interaction/summary` – Get learner summary (streak, activity, time estimates)
 
 ### Assessments
+
 - `POST /assessment/pre-test` – Submit pre-assessment
 - `POST /assessment/post-test` – Submit post-assessment
 
 ### Admin
+
 - `GET /admin/analytics` – Learner and assessment analytics
 
 ## 🤝 Contributing

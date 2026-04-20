@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Theory: What is a Computer?</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-fixed": "#00174b",
+                        "secondary-fixed": "#dce1ff",
+                        "on-secondary-fixed": "#00164e",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#33302c",
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "on-tertiary-fixed-variant": "#5516be",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#6b38d4",
+                        "on-tertiary-fixed": "#23005c",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary-container": "#8fa7fe",
+                        "on-secondary-container": "#1d3989",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#424754",
+                        "surface-bright": "#fff8f2",
+                        "on-surface": "#1e1b17",
+                        "tertiary-fixed": "#e9ddff",
+                        "surface-tint": "#0053db",
+                        "inverse-primary": "#b4c5ff",
+                        "background": "#fff8f2",
+                        "surface-dim": "#e0d9d2",
+                        "secondary-fixed-dim": "#b6c4ff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-high": "#eee7e0",
+                        "on-secondary-fixed-variant": "#264191",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f7efe9",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#faf2eb",
+                        "surface-container-highest": "#e8e1db",
+                        "secondary": "#4059aa",
+                        "primary": "#0051d5",
+                        "primary-container": "#316bf3",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-container": "#8455ef",
+                        "surface": "#fff8f2",
+                        "on-background": "#1e1b17",
+                        "surface-variant": "#e8e1db",
+                        "surface-container": "#f4ede6",
+                        "on-primary-container": "#fefcff",
+                        "error": "#ba1a1a",
+                        "outline": "#727785"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background-color: rgba(255, 248, 242, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #0051d5, #316bf3);
+        }
+        .ambient-shadow {
+            box-shadow: 0 4px 20px rgba(30, 27, 23, 0.04), 0 2px 8px rgba(30, 27, 23, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Task-Focused Sticky Top Bar (Global Shell Suppressed) -->
+<header class="sticky top-0 z-50 w-full glass-panel flex flex-col justify-between">
+<div class="max-w-[768px] mx-auto w-full px-4 md:px-8 py-3 flex items-center justify-between">
+<button class="flex items-center gap-2 text-primary hover:bg-surface-container-low px-2 py-1.5 rounded-lg transition-colors group">
+<span class="material-symbols-outlined text-xl group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+<span class="font-medium text-sm">Computer Essentials</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 text-on-surface-variant bg-surface-container py-1 px-2.5 rounded-full">
+<span class="material-symbols-outlined text-[18px]">timer</span>
+<span class="font-mono text-xs font-medium tracking-wide">12:00</span>
+</div>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-1 bg-surface-variant/50">
+<div class="h-full bg-primary w-[30%] transition-all duration-500 ease-out"></div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-[768px] mx-auto px-6 md:px-8 pt-12 pb-32">
+<!-- Adaptive Learning Chip / Theory Badge -->
+<div class="inline-flex items-center gap-2 bg-primary-fixed/40 text-on-primary-fixed px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase mb-8">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+            📖 Theory
+        </div>
+<!-- Headline -->
+<h1 class="font-headline text-[2.5rem] leading-[1.1] tracking-[-0.02em] font-extrabold text-on-surface mb-8">
+            What is a Computer?
+        </h1>
+<!-- Article Body -->
+<article class="prose prose-lg max-w-[65ch] text-on-surface-variant leading-[1.625] space-y-8">
+<p class="text-[1.125rem]">
+                At its core, a computer is more than just a glowing rectangle on your desk or in your pocket. It is an incredibly fast, highly organized machine capable of processing vast amounts of information in fractions of a second.
+            </p>
+<!-- Key Concept Callout -->
+<div class="bg-primary-fixed/30 rounded-r-lg relative overflow-hidden py-6 px-8 my-10 shadow-[0_4px_20px_rgba(30,27,23,0.02)]">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary rounded-l-lg"></div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<p class="text-on-surface font-medium text-lg leading-relaxed m-0">
+                        A computer is an electronic device that manipulates information, or data. It has the ability to store, retrieve, and process data.
+                    </p>
+</div>
+</div>
+<p class="text-[1.125rem]">
+                You may already know that you can use a computer to type documents, send emails, play games, and browse the Web. You can also use it to edit or create spreadsheets, presentations, and even videos.
+            </p>
+<p class="text-[1.125rem]">
+                The magic of a computer lies in how it handles <span class="bg-tertiary-fixed-dim/40 text-on-surface px-1.5 py-0.5 rounded font-medium">hardware</span> and <span class="bg-tertiary-fixed-dim/40 text-on-surface px-1.5 py-0.5 rounded font-medium">software</span> working in perfect synchronization. The physical components you can touch—like the keyboard, screen, and the internal microchips—rely entirely on the invisible instructions provided by software programs to function.
+            </p>
+<!-- Action Area -->
+<div class="pt-8 flex justify-start">
+<button class="btn-primary-gradient text-on-primary font-medium text-base px-8 py-3.5 rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Mark as Read
+                </button>
+</div>
+</article>
+</main>
+<!-- Navigation Footer -->
+<footer class="fixed bottom-0 w-full glass-panel border-t border-surface-variant/30 z-40">
+<div class="max-w-[768px] mx-auto px-6 md:px-8 py-4 flex justify-between items-center">
+<button class="text-primary font-medium px-4 py-2 hover:bg-surface-container-low rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                Previous
+            </button>
+<button class="btn-primary-gradient text-on-primary font-medium px-6 py-2.5 rounded-lg transition-all flex items-center gap-2 hover:opacity-90 active:scale-95">
+                Next Topic
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</footer>
+</body></html>

@@ -85,7 +85,6 @@ def recommendation_status(current_user: Learner = Depends(get_current_user), db:
             "engine_source": engine_source,
             "is_rl_assignment": engine_source == "rl",
             "last_route": adaptive_engine.get_learner_route(str(current_user.id)),
-            "engine_snapshot": adaptive_engine.snapshot(),
         }
     )
 

@@ -201,5 +201,5 @@ export const learningContent = {
 };
 
 export function getCurrentLearnerId(user) {
-    return user?.learner_id || Number(localStorage.getItem('eduture_learner_id')) || 0;
+    return user?.learner_id || 0;
 }

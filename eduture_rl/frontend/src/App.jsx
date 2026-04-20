@@ -189,7 +189,7 @@ function AuthPage({ mode }) {
 function QuestionnairePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const learnerId = user?.learner_id || Number(localStorage.getItem('eduture_learner_id')) || 0;
+  const learnerId = user?.learner_id || 0;
   const [answers, setAnswers] = useState(() => Object.fromEntries(questionBank.map((q) => [q.id, null])));
   const [loading, setLoading] = useState(false);
   const answeredCount = Object.values(answers).filter((value) => value !== null).length;
@@ -266,7 +266,7 @@ function DashboardPage() {
     api.get('/content/modules').then((response) => setModules(response.data.data)).catch(() => setModules(fallbackModules));
     api
       .get('/content/recommend', {
-        params: { learner_id: user?.learner_id || Number(localStorage.getItem('eduture_learner_id')) || 0, time_on_task: 0.5, error_rate: 0.2, revisit_count: 0.1, completion_rate: 0.2, engagement_score: 0.6, topic_difficulty: 0.4 },
+        params: { time_on_task: 0.5, error_rate: 0.2, revisit_count: 0.1, completion_rate: 0.2, engagement_score: 0.6, topic_difficulty: 0.4 },
       })
       .then((response) => setRecommendation(response.data.data))
       .catch(() => setRecommendation(null));
@@ -341,7 +341,7 @@ function LearningPage() {
   const [content, setContent] = useState(null);
 
   useEffect(() => {
-    api.get('/content/recommend', { params: { learner_id: Number(localStorage.getItem('eduture_learner_id')) || 0, time_on_task: 0.5, error_rate: 0.2, revisit_count: 0.1, completion_rate: 0.5, engagement_score: 0.7, topic_difficulty: 0.4 } })
+    api.get('/content/recommend', { params: { time_on_task: 0.5, error_rate: 0.2, revisit_count: 0.1, completion_rate: 0.5, engagement_score: 0.7, topic_difficulty: 0.4 } })
       .then((response) => setContent(response.data.data.content))
       .catch(() => setContent(null));
   }, [topicId]);
@@ -392,7 +392,7 @@ function AssessmentPage() {
 
   const submit = async () => {
     const payload = {
-      learner_id: user?.learner_id || Number(localStorage.getItem('eduture_learner_id')) || 0,
+      learner_id: user?.learner_id || 0,
       module_id: 'icdl-essentials',
       content_id: 1,
       score: Number(score),
