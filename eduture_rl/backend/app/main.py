@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi.extension import _rate_limit_exceeded_handler
@@ -12,7 +13,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from .config import get_settings
 from .auth import hash_password
-from .database import SessionLocal
+from .database import SessionLocal, engine
 from .limiter import limiter
 from .logging_config import setup_logging
 from .models import ContentFragment, Learner
@@ -36,6 +37,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _ensure_avatar_column() -> None:
+    inspector = inspect(engine)
+    if "learners" not in inspector.get_table_names():
+        return
+    column_names = {column["name"] for column in inspector.get_columns("learners")}
+    if "avatar_url" in column_names:
+        return
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE learners ADD COLUMN avatar_url TEXT"))
 
 
 @app.middleware("http")
@@ -70,6 +82,7 @@ app.include_router(admin.router)
 
 @app.on_event("startup")
 def startup_event() -> None:
+    _ensure_avatar_column()
     db = SessionLocal()
     try:
         if settings.admin_bootstrap_enabled:

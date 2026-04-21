@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { SurfaceCard } from '../components/ui/Cards';
-import { getCurrentLearnerId, questionnaireQuestions, styleOrder } from '../constants/learningData';
+import { getCurrentLearnerId, questionnaireQuestions } from '../constants/learningData';
 
 export default function QuestionnairePage() {
     const { user } = useAuth();
@@ -19,7 +19,7 @@ export default function QuestionnairePage() {
     const currentAnswer = answers[currentQuestion.id];
     const answeredCount = Object.values(answers).filter((value) => value !== null).length;
     const sectionIndex = Math.floor(currentIndex / 20);
-    const sectionLabel = `${sectionIndex + 1} of 4 — ${currentQuestion.section} Preferences`;
+    const sectionLabel = `Section ${sectionIndex + 1} of 4`;
 
     useEffect(() => () => {
         if (advanceTimerRef.current) {
@@ -82,11 +82,11 @@ export default function QuestionnairePage() {
                         <div className="focus-meta-label muted">{questionnaireQuestions.length - answeredCount} remaining</div>
                     </div>
                     <div className="segmented-progress">
-                        {styleOrder.map((style, index) => {
-                            const start = index * 20;
+                        {Array.from({ length: 4 }, (_, blockIndex) => {
+                            const start = blockIndex * 20;
                             const block = questionnaireQuestions.slice(start, start + 20);
                             const blockComplete = block.filter((item) => answers[item.id] !== null).length;
-                            return <span key={style} className="segment"><span style={{ width: `${(blockComplete / 20) * 100}%` }} /></span>;
+                            return <span key={blockIndex} className="segment"><span style={{ width: `${(blockComplete / 20) * 100}%` }} /></span>;
                         })}
                     </div>
                 </div>

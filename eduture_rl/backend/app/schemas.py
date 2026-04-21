@@ -66,11 +66,32 @@ class AuthResponse(BaseModel):
     learner_id: int
     email: str
     full_name: str
+    avatar_url: str | None = None
     is_admin: bool = False
     access_token: str
     refresh_token: str | None = None
     token_type: str = "Bearer"
     expires_in: int = 3600
+
+
+class AvatarUpdateRequest(BaseModel):
+    avatar_url: str | None = Field(default=None, max_length=2_000_000)
+
+    @field_validator("avatar_url")
+    @classmethod
+    def validate_avatar_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        trimmed = value.strip()
+        if not trimmed:
+            return None
+        if trimmed.startswith("data:image/"):
+            if ";base64," not in trimmed:
+                raise ValueError("avatar_url must be a valid image data URL")
+            return trimmed
+        if trimmed.startswith("https://") or trimmed.startswith("http://"):
+            return trimmed
+        raise ValueError("avatar_url must be an http(s) URL or a data:image/* base64 URL")
 
 
 class LearningStyleAnswer(BaseModel):

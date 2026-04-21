@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from functools import lru_cache
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     admin_bootstrap_email: str | None = None
     admin_bootstrap_password: str | None = None
     admin_bootstrap_full_name: str = "EDUTURE Admin"
+    google_oauth_enabled: bool = False
+    google_oauth_client_id: str | None = None
+    google_oauth_client_secret: str | None = None
+    google_oauth_redirect_uri: str = "http://localhost:8000/auth/google/callback"
+    google_oauth_frontend_success_url: str = "http://localhost:5173/login?oauth=success"
+    google_oauth_frontend_error_url: str = "http://localhost:5173/login?oauth=error"
 
     @field_validator("secret_key")
     @classmethod
@@ -61,6 +67,22 @@ class Settings(BaseSettings):
             return None
         password = value.strip()
         return password or None
+
+    @field_validator("google_oauth_client_id", "google_oauth_client_secret", mode="before")
+    @classmethod
+    def normalize_optional_secret_fields(cls, value: object) -> object:
+        if isinstance(value, str):
+            cleaned = value.strip()
+            return cleaned or None
+        return value
+
+    @model_validator(mode="after")
+    def validate_google_oauth_config(self) -> "Settings":
+        if not self.google_oauth_enabled:
+            return self
+        if not self.google_oauth_client_id or not self.google_oauth_client_secret:
+            raise ValueError("Google OAuth is enabled but GOOGLE_OAUTH_CLIENT_ID/GOOGLE_OAUTH_CLIENT_SECRET are missing")
+        return self
 
     @field_validator("cors_origins", mode="before")
     @classmethod

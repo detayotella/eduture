@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { getCurrentLearnerId } from '../constants/learningData';
 
 const avatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCMofZ6l-IiSVXFTbgUrrcOQHSGgfusYMOwHkWRvTCbPDP0nURcsFNKvMXdeGXn8noYnX0rEDMsKQdXbBLYHvnkvI_XC9VdytOuhxbt79ze7OWiDYvtkXJB2j3p_0b56Cll45ieSXd5z6wzUqbvWzOoz2cQpJAc2nw95dlEKqub1qcpITGxACjs8-WAaR5LsBvhaVvKq7cpXe9ka_KDBNZsYg_7mcO8Y6oL_fWixJPKPJUDL9aF1ERw6ZWlHp3_HPIDt9lBYxHDtS-n';
+
+function getInitials(fullName) {
+    if (!fullName) {
+        return 'ED';
+    }
+    return fullName
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || '')
+        .join('') || 'ED';
+}
+
 const curatedImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuChH6gOEEiAlGlr50N6Y-ibYlQWfq9hXjpDp5yZO0sZgaOozfVsAZwl-3bzXf7N7RG7VQIGFI_GNu4JbvEdocKkAhH2apMcIcXYd6K9VHhPkFdXSCm7esRxoPTGC-Jjirqo3dSN4ZxzUtJRSweOAB7FoBEfe0aGZMlOMaoFCcUB07LYmE-ysq9DkWWCCjRAUTKAIkY0bKO8EaSB8KBvsOrnHzTe7ApmZzQ9BQszuX9gYHaqX7dNzgpFBOjcRN-O_-7IabsknwR6lu5L';
 const pathwayImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3GQClOvyiAcb4Sb27ZXasg3QqxhXUWkDRzP-yjEbmDEIxeudqbQr41CYHQJpsN8KXTzYCdEW-aMbfWk0OzPLM2BvwsA2MJQR95fUZz8ioOeTL0CWD3mMxtAiV2AXbI3MxKT7KsxoNSw8X7KBxY9oSXjWm5JpSfJzrXyLmIV-gS6h2Doqq47ns7ZQxN5mByLIKkTL0EeVkjIpYcTqaFIFXnvpz4Y7kI2Uj_W-xCjMSkF90XzuGvG3RxKnepTrV4xo067O9A6LBBlsg';
 
 export default function DashboardPage() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [recommendation, setRecommendation] = useState(null);
     const [summary, setSummary] = useState(null);
 
@@ -67,24 +81,43 @@ export default function DashboardPage() {
             { title: 'Peer Code Review', scheduled_at: null },
         ];
 
+    const profileTitle = user?.full_name || user?.email || 'Learner profile';
+    const profileSubtitle = user?.email || 'Open settings to manage your profile';
+    const currentStyle = summary?.dominant_style || summary?.style || user?.preferred_style || 'Adaptive';
+    const activityCount = Number(summary?.interaction_count || 0);
+    const masteryLabel = user?.is_admin ? 'Admin access' : `${Math.max(1, Math.min(10, Math.round((summary?.mastery_score || 68) / 10)))} / 10 mastery`;
+    const profileMilestone = summary?.next_milestone || 'Keep exploring your recommended modules';
+    const profileRoute = '/settings';
+    const openProfile = () => navigate(profileRoute);
+    const profileAvatar = user?.avatar_url || avatarUrl;
+
     return (
         <div className="db-page">
             <div className="db-desktop-shell">
                 <aside className="db-sidebar">
                     <div className="db-logo">EDUTURE 2.0</div>
-                    <div className="db-profile">
-                        <img src={avatarUrl} alt="Learner" />
-                        <div>
-                            <div className="db-level">Mastery Level 4</div>
-                            <div className="db-style">Activist Learner</div>
+                    <button type="button" className="db-profile db-profile-link db-profile-button" onClick={openProfile}>
+                        <div className="db-profile-avatar">
+                            <img src={profileAvatar} alt={profileTitle} />
+                            <span>{getInitials(user?.full_name)}</span>
                         </div>
-                    </div>
+                        <div className="db-profile-copy">
+                            <div className="db-profile-name">{profileTitle}</div>
+                            <div className="db-profile-subtitle">{profileSubtitle}</div>
+                            <div className="db-profile-meta">
+                                <span>{masteryLabel}</span>
+                                <span>{currentStyle}</span>
+                            </div>
+                        </div>
+                    </button>
 
                     <nav className="db-nav">
                         <NavLink to="/dashboard" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">home</span><span>Home</span></NavLink>
+                        <NavLink to="/questionnaire" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">quiz</span><span>Questionnaire</span></NavLink>
                         <NavLink to="/explore" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">explore</span><span>Explore</span></NavLink>
                         <NavLink to="/pathways" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">moving</span><span>Pathways</span></NavLink>
                         <NavLink to="/achievements" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">workspace_premium</span><span>Achievements</span></NavLink>
+                        <NavLink to="/progress" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">trending_up</span><span>Progress</span></NavLink>
                         <NavLink to="/settings" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">settings</span><span>Settings</span></NavLink>
                     </nav>
 
@@ -184,9 +217,11 @@ export default function DashboardPage() {
 
             <div className="db-mobile-shell">
                 <header className="db-mobile-topbar">
-                    <button type="button"><span className="material-symbols-outlined">menu</span></button>
+                    <button type="button" onClick={openProfile}><span className="material-symbols-outlined">menu</span></button>
                     <h1>EDUTURE 2.0</h1>
-                    <img src={avatarUrl} alt="Learner" />
+                    <button type="button" className="db-mobile-avatar-button" onClick={openProfile} aria-label="Open profile">
+                        <img src={profileAvatar} alt={profileTitle} />
+                    </button>
                 </header>
 
                 <main className="db-mobile-main">
@@ -259,6 +294,14 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </section>
+
+                    <button type="button" className="db-profile-banner" onClick={openProfile}>
+                        <div>
+                            <span>Open profile</span>
+                            <strong>{profileTitle}</strong>
+                        </div>
+                        <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
                 </main>
 
                 <nav className="db-mobile-bottomnav">

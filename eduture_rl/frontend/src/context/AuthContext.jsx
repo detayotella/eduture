@@ -37,6 +37,7 @@ export function AuthProvider({ children }) {
       learner_id: payload.learner_id,
       email: payload.email,
       full_name: payload.full_name,
+      avatar_url: payload.avatar_url || null,
       is_admin: Boolean(payload.is_admin),
     };
     setUser(userPayload);

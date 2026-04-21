@@ -1,76 +1,217 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import DashboardShell from '../components/layout/DashboardShell';
+import api from '../services/api';
 import { styleMeta } from '../constants/learningData';
 
-export default function ProgressPage() {
-    const navigate = useNavigate();
+const styleOrder = ['activist', 'reflector', 'theorist', 'pragmatist'];
 
-    const formatRelativeTime = (timestamp) => {
-        const diffMs = Date.now() - timestamp.getTime();
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        if (diffMinutes < 1) {
-            return 'just now';
-        }
-        if (diffMinutes < 60) {
-            return `${diffMinutes} min ago`;
-        }
-        const diffHours = Math.floor(diffMinutes / 60);
-        if (diffHours < 24) {
-            return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-        }
-        const diffDays = Math.floor(diffHours / 24);
-        if (diffDays === 1) {
-            return 'Yesterday';
-        }
-        return `${diffDays} days ago`;
-    };
+function formatRelativeTime(timestamp) {
+    const diffMs = Date.now() - timestamp.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    if (diffMinutes < 1) {
+        return 'just now';
+    }
+    if (diffMinutes < 60) {
+        return `${diffMinutes} min ago`;
+    }
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+        return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    }
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) {
+        return 'Yesterday';
+    }
+    return `${diffDays} days ago`;
+}
+
+function toScore(value) {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+        return 0;
+    }
+    return Math.max(0, Math.min(100, value));
+}
+
+function extractBarHeight(value) {
+    if (value === 'today') {
+        return '86%';
+    }
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) {
+        return '0%';
+    }
+    return `${Math.max(10, Math.min(100, numeric))}%`;
+}
+
+export default function ProgressPage() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const [summary, setSummary] = useState(null);
+    const [recommendationStatus, setRecommendationStatus] = useState(null);
+    const [recommendation, setRecommendation] = useState(null);
+    const [styleResult, setStyleResult] = useState(null);
+
+    useEffect(() => {
+        let active = true;
+        const recommendationParams = {
+            time_on_task: 0.5,
+            error_rate: 0.2,
+            revisit_count: 0.1,
+            completion_rate: 0.2,
+            engagement_score: 0.6,
+            topic_difficulty: 0.4,
+        };
+
+        Promise.all([
+            api.get('/interaction/summary'),
+            api.get('/content/recommendation-status'),
+            api.get('/content/recommend', { params: recommendationParams }),
+            api.get('/learning-style/result'),
+        ])
+            .then(([summaryResponse, statusResponse, recommendationResponse, styleResponse]) => {
+                if (!active) {
+                    return;
+                }
+                setSummary(summaryResponse.data.data);
+                setRecommendationStatus(statusResponse.data.data);
+                setRecommendation(recommendationResponse.data.data);
+                setStyleResult(styleResponse.data.data);
+            })
+            .catch(async () => {
+                if (!active) {
+                    return;
+                }
+                try {
+                    const [summaryResponse, statusResponse, recommendationResponse] = await Promise.all([
+                        api.get('/interaction/summary'),
+                        api.get('/content/recommendation-status'),
+                        api.get('/content/recommend', { params: recommendationParams }),
+                    ]);
+                    if (!active) {
+                        return;
+                    }
+                    setSummary(summaryResponse.data.data);
+                    setRecommendationStatus(statusResponse.data.data);
+                    setRecommendation(recommendationResponse.data.data);
+                } catch {
+                    if (!active) {
+                        return;
+                    }
+                    setSummary(null);
+                    setRecommendationStatus(null);
+                    setRecommendation(null);
+                    setStyleResult(null);
+                }
+            });
+
+        return () => {
+            active = false;
+        };
+    }, [user]);
+
+    const streakDays = Math.max(0, Number(summary?.streak_days ?? 0));
+    const activityDensity = Array.isArray(summary?.activity_density) ? summary.activity_density : [];
+    const activeDays = useMemo(() => activityDensity.filter((value) => value !== '0' && value !== 'today').length, [activityDensity]);
+    const badgesEarned = Math.max(1, Math.min(50, streakDays + activeDays));
+    const rankTopPercent = Math.max(5, 35 - Math.min(25, streakDays + Math.floor(activeDays / 2)));
+    const nextMilestone = [3, 7, 14, 21, 30].find((milestone) => milestone > streakDays) ?? (streakDays + 7);
+    const badgesToNextGoal = Math.max(0, nextMilestone - streakDays);
+    const checkpointDateLabel = summary?.checkpoints?.[0]?.scheduled_at
+        ? new Date(summary.checkpoints[0].scheduled_at).toLocaleDateString([], {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+        })
+        : 'No checkpoint scheduled';
+
+    const engineSource = recommendationStatus?.engine_source || 'rule';
+    const assignmentGroup = recommendationStatus?.assignment_group || recommendation?.group || 'rule_based';
+    const recommendedTitle = recommendation?.content?.title || 'Next recommended step';
+    const recommendedType = recommendation?.recommended_content_type || recommendation?.content?.content_type || 'activity';
+    const recommendedContent = recommendation?.content?.content_data || 'The backend recommendation engine will surface live content here once the learner engages.';
+    const lastRoute = recommendationStatus?.last_route || recommendation?.last_route || null;
+    const lastRouteType = lastRoute?.content_type || recommendedType;
+
+    const styleRows = styleOrder.map((key) => {
+        const rawScore = styleResult ? Number(styleResult[`${key}_score`] ?? 0) : 0;
+        return { key, value: toScore(rawScore) };
+    });
+
+    const dominantStyleLabel = styleResult?.dominant_style && styleMeta[styleResult.dominant_style]
+        ? styleMeta[styleResult.dominant_style].label
+        : 'Learning';
+
+    const statCards = [
+        { label: 'Current streak', value: `${streakDays}`, suffix: 'days', icon: 'local_fire_department', accent: 'activist', chip: streakDays > 0 ? 'ACTIVE' : 'READY' },
+        { label: 'Active days', value: `${activeDays}`, suffix: '/14', icon: 'calendar_month', accent: 'primary', chip: 'RECENT' },
+        { label: 'Engine source', value: engineSource.toUpperCase(), suffix: assignmentGroup, icon: 'hub', accent: 'tertiary', chip: 'RL' },
+        { label: 'Next read', value: `${Math.max(10, Number(summary?.recommended_read_minutes ?? 45))}`, suffix: 'min', icon: 'menu_book', accent: 'theorist', chip: 'LIVE' },
+    ];
+
+    const bars = (activityDensity.length ? activityDensity : ['0', '20', '40', '60', '80', '100', 'today']).map((value, index) => ({
+        day: index === 13 ? 'TODAY' : ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'][index % 7],
+        height: extractBarHeight(value),
+        value: value === 'today' ? 'today' : `${value}%`,
+        active: value !== '0',
+    }));
+
+    const timeline = [
+        {
+            title: 'Latest recommendation',
+            detail: `${recommendedTitle} • ${recommendedType}`,
+            timestamp: recommendationStatus?.last_route?.recorded_at ? new Date(recommendationStatus.last_route.recorded_at) : new Date(),
+            icon: 'route',
+            active: true,
+        },
+        {
+            title: 'Assessment checkpoint',
+            detail: summary?.checkpoints?.[0]?.title || 'No checkpoint scheduled',
+            timestamp: summary?.checkpoints?.[0]?.scheduled_at ? new Date(summary.checkpoints[0].scheduled_at) : new Date(),
+            icon: 'military_tech',
+        },
+        {
+            title: 'Learning style',
+            detail: styleResult?.dominant_style && styleMeta[styleResult.dominant_style]
+                ? `${styleMeta[styleResult.dominant_style].label} confirmed`
+                : 'Run the questionnaire to update your style',
+            timestamp: styleResult?.assessed_at ? new Date(styleResult.assessed_at) : new Date(),
+            icon: 'psychology',
+        },
+    ];
 
     const exportData = () => {
         const exportDataObj = {
             exportDate: new Date().toISOString(),
             learner: {
+                id: user?.learner_id ?? user?.id ?? null,
+                name: user?.full_name || user?.email || 'Learner',
                 stats: {
-                    studyTime: '12.5 hrs',
-                    averageScore: '84%',
-                    topicsCompleted: '15/20',
-                    currentStreak: '5 days',
+                    streakDays,
+                    activeDays,
+                    recommendedReadMinutes: Number(summary?.recommended_read_minutes ?? 45),
+                    estimatedHours: Number(summary?.estimated_hours ?? 0),
                 },
-                styleBalance: {
-                    activist: 65,
-                    reflector: 85,
-                    theorist: 45,
-                    pragmatist: 55,
+                learningStyle: styleResult ? {
+                    dominantStyle: styleResult.dominant_style,
+                    activist: styleResult.activist_score,
+                    reflector: styleResult.reflector_score,
+                    theorist: styleResult.theorist_score,
+                    pragmatist: styleResult.pragmatist_score,
+                } : null,
+                recommendation: {
+                    engineSource,
+                    assignmentGroup,
+                    title: recommendedTitle,
+                    contentType: recommendedType,
                 },
             },
-            activityLog: {
-                weeklyHours: [
-                    { day: 'MON', hours: 1.2 },
-                    { day: 'TUE', hours: 2.1 },
-                    { day: 'WED', hours: 3.2 },
-                    { day: 'THU', hours: 1.7 },
-                    { day: 'FRI', hours: 2.5 },
-                    { day: 'SAT', hours: 0.8 },
-                    { day: 'SUN', hours: 0.4 },
-                ],
-            },
-            recentActivity: [
-                {
-                    title: 'Module Completed',
-                    detail: 'Advanced Theoretical Frameworks',
-                    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                },
-                {
-                    title: 'Assessment Submitted',
-                    detail: 'Cognitive Bias Identification (Score: 92%)',
-                    timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
-                },
-                {
-                    title: 'Material Reviewed',
-                    detail: 'Reading: History of Structuralism',
-                    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                },
-            ],
+            recentActivity: timeline.map((event) => ({
+                title: event.title,
+                detail: event.detail,
+                timestamp: event.timestamp.toISOString(),
+            })),
         };
 
         const dataStr = JSON.stringify(exportDataObj, null, 2);
@@ -89,53 +230,6 @@ export default function ProgressPage() {
         navigate('/pathways');
     };
 
-    const now = new Date();
-    const statCards = [
-        { label: 'Study Time', value: '12.5', suffix: 'hrs', icon: '◷', accent: 'primary', chip: 'LIFETIME' },
-        { label: 'Avg Score', value: '84', suffix: '%', icon: '★', accent: 'tertiary', chip: '+2.4%' },
-        { label: 'Topics Completed', value: '15', suffix: '/20', icon: '☑', accent: 'theorist', chip: '75%' },
-        { label: 'Current Streak', value: '5', suffix: 'days', icon: '⚑', accent: 'activist', chip: 'ACTIVE' },
-    ];
-
-    const bars = [
-        { day: 'MON', height: '30%', value: '1.2h' },
-        { day: 'TUE', height: '50%', value: '2.1h' },
-        { day: 'WED', height: '80%', value: '3.2h', active: true },
-        { day: 'THU', height: '45%', value: '1.7h' },
-        { day: 'FRI', height: '60%', value: '2.5h' },
-        { day: 'SAT', height: '20%', value: '0.8h' },
-        { day: 'SUN', height: '10%', value: '0.4h' },
-    ];
-
-    const styleRows = [
-        { key: 'activist', value: 65 },
-        { key: 'reflector', value: 85 },
-        { key: 'theorist', value: 45 },
-        { key: 'pragmatist', value: 55 },
-    ];
-
-    const timeline = [
-        {
-            title: 'Module Completed',
-            detail: 'Advanced Theoretical Frameworks',
-            timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000),
-            icon: '✓',
-            active: true,
-        },
-        {
-            title: 'Assessment Submitted',
-            detail: 'Cognitive Bias Identification (Score: 92%)',
-            timestamp: new Date(now.getTime() - 26 * 60 * 60 * 1000),
-            icon: '✎',
-        },
-        {
-            title: 'Material Reviewed',
-            detail: 'Reading: History of Structuralism',
-            timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-            icon: '◉',
-        },
-    ];
-
     return (
         <DashboardShell>
             <header className="db-header">
@@ -147,7 +241,7 @@ export default function ProgressPage() {
                 {statCards.map((card) => (
                     <article key={card.label} className={`prg-stat-card ${card.accent}`}>
                         <div className="prg-stat-head">
-                            <span className="prg-stat-icon" aria-hidden="true">{card.icon}</span>
+                            <span className="prg-stat-icon" aria-hidden="true"><span className="material-symbols-outlined prg-material-icon">{card.icon}</span></span>
                             <span className="prg-stat-chip">{card.chip}</span>
                         </div>
                         <p className="prg-stat-label">{card.label}</p>
@@ -164,24 +258,24 @@ export default function ProgressPage() {
                     <div className="prg-panel-head">
                         <div>
                             <h3>Learning Activity</h3>
-                            <p>Hours invested per day</p>
+                            <p>Live activity density from the backend</p>
                         </div>
                         <div className="prg-period-switch">
-                            <button type="button" className="active">Week</button>
-                            <button type="button">Month</button>
+                            <button type="button" className="active">14 days</button>
+                            <button type="button" onClick={reviewModules}>Pathways</button>
                         </div>
                     </div>
                     <div className="prg-bar-chart">
                         <div className="prg-y-axis" aria-hidden="true">
-                            <span>4h</span>
-                            <span>3h</span>
-                            <span>2h</span>
-                            <span>1h</span>
-                            <span>0h</span>
+                            <span>100%</span>
+                            <span>80%</span>
+                            <span>60%</span>
+                            <span>40%</span>
+                            <span>20%</span>
                         </div>
                         <div className="prg-bars">
-                            {bars.map((bar) => (
-                                <div key={bar.day} className="prg-bar-group">
+                            {bars.map((bar, index) => (
+                                <div key={`${bar.day}-${index}`} className="prg-bar-group">
                                     <div className={`prg-bar ${bar.active ? 'active' : ''}`} style={{ height: bar.height }}>
                                         <span className="prg-bar-tip">{bar.value}</span>
                                     </div>
@@ -194,7 +288,7 @@ export default function ProgressPage() {
 
                 <article className="prg-panel prg-style-panel">
                     <h3>Style Radar</h3>
-                    <p>Cognitive balance</p>
+                    <p>{styleResult?.dominant_style ? `${dominantStyleLabel} leads your profile` : 'Cognitive balance'}</p>
                     <div className="prg-style-list">
                         {styleRows.map((row) => (
                             <div key={row.key} className="prg-style-row">
@@ -209,17 +303,45 @@ export default function ProgressPage() {
                         ))}
                     </div>
                     <p className="prg-style-note">
-                        Your current approach heavily favors <strong style={{ color: styleMeta.reflector.color }}>Reflective</strong> processing.
+                        {styleResult?.dominant_style
+                            ? `Your current approach favors ${dominantStyleLabel.toLowerCase()} processing.`
+                            : 'Run the questionnaire to unlock a live style profile.'}
                     </p>
                 </article>
             </section>
 
             <section className="prg-panel prg-timeline-panel">
-                <h3>Recent Activity</h3>
-                <div className="prg-timeline">
+                <div className="prg-panel-head" style={{ marginBottom: 0 }}>
+                    <div>
+                        <h3>RL Status</h3>
+                        <p>{engineSource.toUpperCase()} engine • {assignmentGroup}</p>
+                    </div>
+                    <div className="prg-period-switch">
+                        <button type="button" className="active" onClick={exportData}>Export</button>
+                        <button type="button" onClick={reviewModules}>Review modules</button>
+                    </div>
+                </div>
+
+                <div className="prg-rl-status-card">
+                    <div className="prg-rl-status-head">
+                        <div className="prg-rl-icon-wrap"><span className="material-symbols-outlined">neurology</span></div>
+                        <div>
+                            <h4>Recommendation Engine</h4>
+                            <p>Live backend decisioning is active for your account.</p>
+                        </div>
+                    </div>
+                    <div className="prg-rl-chip-row">
+                        <span>{engineSource.toUpperCase()}</span>
+                        <span>{assignmentGroup}</span>
+                        <span>{dominantStyleLabel}</span>
+                        <span>{lastRouteType}</span>
+                    </div>
+                </div>
+
+                <div className="prg-timeline" style={{ marginTop: 20 }}>
                     {timeline.map((event) => (
                         <article key={event.title} className="prg-event-row">
-                            <div className={`prg-event-icon ${event.active ? 'active' : ''}`}>{event.icon}</div>
+                            <div className={`prg-event-icon ${event.active ? 'active' : ''}`}><span className="material-symbols-outlined">{event.icon}</span></div>
                             <div className="prg-event-card">
                                 <div className="prg-event-head">
                                     <h4>{event.title}</h4>
@@ -229,6 +351,21 @@ export default function ProgressPage() {
                             </div>
                         </article>
                     ))}
+                    <article className="prg-event-row">
+                        <div className="prg-event-icon active"><span className="material-symbols-outlined">arrow_forward</span></div>
+                        <div className="prg-event-card">
+                            <div className="prg-event-head">
+                                <h4>Current recommendation</h4>
+                                <time>{lastRoute?.recorded_at ? formatRelativeTime(new Date(lastRoute.recorded_at)) : 'live'}</time>
+                            </div>
+                            <p><strong>{recommendedTitle}</strong> • {recommendedType}</p>
+                            <p>{recommendedContent}</p>
+                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
+                                <button type="button" className="btn btn-primary" onClick={reviewModules}>Open pathways</button>
+                                <button type="button" className="btn btn-soft" onClick={exportData}>Export progress</button>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </section>
         </DashboardShell>
