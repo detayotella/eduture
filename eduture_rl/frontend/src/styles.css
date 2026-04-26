@@ -1217,10 +1217,6 @@ textarea {
   gap: 8px;
 }
 
-.shell-roadmap {
-  width: 100%;
-}
-
 .workspace {
   height: 100vh;
   overflow-y: auto;
@@ -1883,20 +1879,37 @@ textarea {
   color: var(--primary);
 }
 
-.db-roadmap {
+.db-main {
+  overflow-y: auto;
+}
+
+.db-bottom-actions {
   margin-top: auto;
+  padding: 16px;
+}
+
+.db-logout {
+  width: 100%;
   border: 0;
   border-radius: 8px;
-  padding: 14px;
+  padding: 14px 16px;
+  background: rgba(18, 18, 18, 0.92);
   color: #fff;
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
   font-weight: 700;
   cursor: pointer;
   box-shadow: var(--shadow-soft);
 }
 
-.db-main {
-  overflow-y: auto;
+.db-mobile-logout {
+  width: 100%;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: rgba(18, 18, 18, 0.92);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--shadow-soft);
 }
 
 .db-main-inner {

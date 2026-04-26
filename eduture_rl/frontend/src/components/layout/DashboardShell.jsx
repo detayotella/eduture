@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const avatarUrl = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCMofZ6l-IiSVXFTbgUrrcOQHSGgfusYMOwHkWRvTCbPDP0nURcsFNKvMXdeGXn8noYnX0rEDMsKQdXbBLYHvnkvI_XC9VdytOuhxbt79ze7OWiDYvtkXJB2j3p_0b56Cll45ieSXd5z6wzUqbvWzOoz2cQpJAc2nw95dlEKqub1qcpITGxACjs8-WAaR5LsBvhaVvKq7cpXe9ka_KDBNZsYg_7mcO8Y6oL_fWixJPKPJUDL9aF1ERw6ZWlHp3_HPIDt9lBYxHDtS-n';
@@ -17,8 +17,9 @@ function getInitials(fullName) {
 }
 
 export default function DashboardShell({ children }) {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
     const profileLabel = user?.full_name || 'Your profile';
     const profileSubtitle = user?.email || 'Profile settings';
     const masteryValue = user?.is_admin ? 'Admin' : 'Learner';
@@ -26,6 +27,11 @@ export default function DashboardShell({ children }) {
     const profileAvatar = user?.avatar_url || avatarUrl;
     const profileTo = '/settings';
     const profileActive = location.pathname === '/settings';
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     return (
         <div className="db-page">
@@ -78,7 +84,10 @@ export default function DashboardShell({ children }) {
                         </NavLink>
                     </nav>
 
-                    <button className="db-roadmap" type="button">View Roadmap</button>
+                    <div className="db-bottom-actions">
+                        <button type="button" className="db-logout" onClick={handleLogout}>Logout</button>
+                    </div>
+
                 </aside>
 
                 <main className="db-main">

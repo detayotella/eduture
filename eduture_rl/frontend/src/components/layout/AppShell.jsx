@@ -62,7 +62,6 @@ export default function AppShell({ title, subtitle, actions, children }) {
                     ) : null}
                 </nav>
                 <div className="shell-bottom-actions">
-                    <button className="btn btn-primary shell-roadmap" type="button">View roadmap</button>
                     <button className="btn btn-soft shell-logout" type="button" onClick={logout}>Logout</button>
                 </div>
             </aside>

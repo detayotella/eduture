@@ -22,7 +22,7 @@ const curatedImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuChH6gO
 const pathwayImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3GQClOvyiAcb4Sb27ZXasg3QqxhXUWkDRzP-yjEbmDEIxeudqbQr41CYHQJpsN8KXTzYCdEW-aMbfWk0OzPLM2BvwsA2MJQR95fUZz8ioOeTL0CWD3mMxtAiV2AXbI3MxKT7KsxoNSw8X7KBxY9oSXjWm5JpSfJzrXyLmIV-gS6h2Doqq47ns7ZQxN5mByLIKkTL0EeVkjIpYcTqaFIFXnvpz4Y7kI2Uj_W-xCjMSkF90XzuGvG3RxKnepTrV4xo067O9A6LBBlsg';
 
 export default function DashboardPage() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [recommendation, setRecommendation] = useState(null);
     const [summary, setSummary] = useState(null);
@@ -89,6 +89,10 @@ export default function DashboardPage() {
     const profileMilestone = summary?.next_milestone || 'Keep exploring your recommended modules';
     const profileRoute = '/settings';
     const openProfile = () => navigate(profileRoute);
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
     const profileAvatar = user?.avatar_url || avatarUrl;
 
     return (
@@ -121,7 +125,10 @@ export default function DashboardPage() {
                         <NavLink to="/settings" className={({ isActive }) => `db-nav-item ${isActive ? 'active' : ''}`}><span className="material-symbols-outlined">settings</span><span>Settings</span></NavLink>
                     </nav>
 
-                    <button className="db-roadmap" type="button">View Roadmap</button>
+                    <div className="db-bottom-actions">
+                        <button type="button" className="db-logout" onClick={handleLogout}>Logout</button>
+                    </div>
+
                 </aside>
 
                 <main className="db-main">
@@ -302,6 +309,8 @@ export default function DashboardPage() {
                         </div>
                         <span className="material-symbols-outlined">chevron_right</span>
                     </button>
+
+                    <button type="button" className="db-mobile-logout" onClick={handleLogout}>Logout</button>
                 </main>
 
                 <nav className="db-mobile-bottomnav">
