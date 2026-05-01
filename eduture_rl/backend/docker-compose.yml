@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: eduture
+      POSTGRES_PASSWORD: eduture_pass
+      POSTGRES_DB: eduture
+    volumes:
+      - eduture_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+    env_file: .env.docker
+    environment:
+      - DATABASE_URL=postgresql+psycopg://eduture:eduture_pass@db:5432/eduture
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+
+volumes:
+  eduture_db_data:
