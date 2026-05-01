@@ -11,13 +11,13 @@ Adaptive learning system for ICDL-style training with a FastAPI backend and a Re
 
 ## Quick start
 
-### Backend + PostgreSQL (Docker Compose)
+### Full stack (Docker Compose)
 
 ```bash
 docker compose up --build
 ```
 
-Backend API will be available at `http://localhost:8000` and PostgreSQL at `localhost:5432`.
+Frontend will be available at `http://localhost:5173`, the backend API at `http://localhost:8000`, and PostgreSQL at `localhost:5432`.
 
 To stop services:
 
@@ -30,6 +30,8 @@ To stop and remove persisted DB volume:
 ```bash
 docker compose down -v
 ```
+
+If you only want the backend and database, use `docker compose -f backend/docker-compose.yml up --build` from the repo root or run the commands in `backend/DOCKER.md`.
 
 ### Backend
 
