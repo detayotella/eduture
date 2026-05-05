@@ -1,4 +1,4 @@
-# EDUTURE 2.0
+cke# EDUTURE 2.0
 
 Adaptive learning system for ICDL-style training with a FastAPI backend and a React frontend.
 

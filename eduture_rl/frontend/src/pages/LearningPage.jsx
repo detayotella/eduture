@@ -9,6 +9,13 @@ export default function LearningPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const content = learningContent[topicId] || learningContent['computer-basics'];
+    const activity = content.activity || {
+        title: 'Match the learning pieces',
+        intro: 'Use drag-and-drop or click a component and then a target card.',
+        hint: 'Pick the item that best fits the description.',
+        items: [],
+        targets: [],
+    };
     const [contentType, setContentType] = useState('theory');
 
     // Timer states
@@ -19,6 +26,24 @@ export default function LearningPage() {
     // State for interactions
     const [theoryMarkedAsRead, setTheoryMarkedAsRead] = useState(false);
     const [activityHintShown, setActivityHintShown] = useState(false);
+    const [selectedItemId, setSelectedItemId] = useState(null);
+    const [placements, setPlacements] = useState({});
+    const [activeTargetId, setActiveTargetId] = useState(null);
+    const [dragState, setDragState] = useState(null);
+
+    useEffect(() => {
+        setContentType('theory');
+        setTheoryTimer(12 * 60);
+        setActivityTimer(8 * 60 + 45);
+        setExerciseTimer(4 * 60 + 20);
+        setTheoryMarkedAsRead(false);
+        setActivityHintShown(false);
+        setSelectedOption(null);
+        setSelectedItemId(null);
+        setPlacements({});
+        setActiveTargetId(null);
+        setDragState(null);
+    }, [topicId]);
 
     // Timer countdown effect
     useEffect(() => {
@@ -39,42 +64,67 @@ export default function LearningPage() {
     const correctExerciseOption = 'Keyboard';
     const [selectedOption, setSelectedOption] = useState(null);
 
-    const initialTargets = {
-        cpu: 'CPU',
-        storage: null,
-        memory: null,
+    const getItemLabel = (itemId) => activity.items.find((item) => item.id === itemId)?.label || '';
+
+    const getTargetById = (targetId) => activity.targets.find((target) => target.id === targetId);
+
+    const availableItems = activity.items.filter((item) => !Object.values(placements).includes(item.id));
+
+    const getPlacedItemForTarget = (targetId) => placements[targetId] || null;
+
+    const isTargetCorrect = (targetId, itemId) => {
+        const target = getTargetById(targetId);
+        const itemLabel = getItemLabel(itemId);
+        return Boolean(target && itemLabel && target.correctItem === itemLabel);
     };
-    const [activityTargets, setActivityTargets] = useState(initialTargets);
-    const [activeDragItem, setActiveDragItem] = useState(null);
-    const [activeTarget, setActiveTarget] = useState(null);
 
-    const draggableItems = ['RAM', 'Hard Drive'];
-
-    const unplacedItems = draggableItems.filter((item) => !Object.values(activityTargets).includes(item));
-
-    const placeItemInTarget = (item, targetKey) => {
-        if (!item || targetKey === 'cpu') {
+    const placeItemInTarget = (itemId, targetId, sourceTargetId = null) => {
+        if (!itemId || !targetId) {
             return;
         }
-        setActivityTargets((previous) => {
+
+        setPlacements((previous) => {
             const next = { ...previous };
-            Object.keys(next).forEach((key) => {
-                if (next[key] === item) {
-                    next[key] = null;
+            const currentTargetId = Object.keys(next).find((key) => next[key] === itemId) || null;
+            const sourceKey = sourceTargetId || currentTargetId;
+            const occupant = next[targetId] || null;
+
+            if (currentTargetId === targetId) {
+                return previous;
+            }
+
+            if (currentTargetId) {
+                delete next[currentTargetId];
+            }
+
+            if (occupant && occupant !== itemId) {
+                if (sourceKey && sourceKey !== targetId) {
+                    next[sourceKey] = occupant;
                 }
-            });
-            next[targetKey] = item;
+            }
+
+            next[targetId] = itemId;
             return next;
         });
-        setActiveDragItem(null);
+
+        setSelectedItemId(null);
+        setDragState(null);
     };
 
-    const isTargetCorrect = (targetKey, value) => {
-        if (targetKey === 'cpu') return value === 'CPU';
-        if (targetKey === 'storage') return value === 'Hard Drive';
-        if (targetKey === 'memory') return value === 'RAM';
-        return false;
+    const handleDragStart = (itemId, sourceTargetId = null) => (event) => {
+        setSelectedItemId(itemId);
+        setDragState({ itemId, sourceTargetId });
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', itemId);
     };
+
+    const handleDragEnd = () => {
+        setDragState(null);
+        setActiveTargetId(null);
+    };
+
+    const selectedItemLabel = selectedItemId ? getItemLabel(selectedItemId) : null;
+    const placedCount = Object.keys(placements).length;
 
     const formatTimer = (seconds) => {
         const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -146,32 +196,22 @@ export default function LearningPage() {
                     <section className="lx-section">
                         <div className="lx-chip lx-chip-theory">
                             <span className="lx-chip-dot" />
-                            <span>Theory</span>
+                            <span>{content.badge}</span>
                         </div>
                         <h1 className="lx-title">{content.title}</h1>
 
                         <article className="lx-article">
-                            <p>
-                                At its core, a computer is more than just a glowing rectangle on your desk or in your pocket. It is an incredibly fast, highly organized machine capable of processing vast amounts of information in fractions of a second.
-                            </p>
+                            <p>{content.body}</p>
 
                             <div className="lx-callout">
                                 <div className="lx-callout-bar" />
                                 <div className="lx-callout-inner">
                                     <span className="material-symbols-outlined">lightbulb</span>
-                                    <p>
-                                        A computer is an electronic device that manipulates information, or data. It has the ability to store, retrieve, and process data.
-                                    </p>
+                                    <p>{content.callout}</p>
                                 </div>
                             </div>
 
-                            <p>
-                                You may already know that you can use a computer to type documents, send emails, play games, and browse the Web. You can also use it to edit or create spreadsheets, presentations, and even videos.
-                            </p>
-
-                            <p>
-                                The magic of a computer lies in how it handles hardware and software working in perfect synchronization. The physical components you can touch rely entirely on the invisible instructions provided by software programs to function.
-                            </p>
+                            <p>{content.activity?.intro || 'This module includes an interactive activity to reinforce the lesson.'}</p>
 
                             <div className="lx-cta-row">
                                 <button
@@ -194,96 +234,97 @@ export default function LearningPage() {
                             <span className="material-symbols-outlined">my_location</span>
                             <span>Activity</span>
                         </div>
-                        <h1 className="lx-title">Identify the Hardware</h1>
+                        <h1 className="lx-title">{activity.title}</h1>
 
                         <div className="lx-info-box">
                             <span className="material-symbols-outlined">info</span>
-                            <p>Drag the hardware component names on the left to match their correct functional descriptions on the right.</p>
+                            <div>
+                                <p>{activity.intro}</p>
+                                <p className="lx-info-box-meta">
+                                    {placedCount}/{activity.targets.length} placed{selectedItemLabel ? ` · Selected: ${selectedItemLabel}` : ''}
+                                </p>
+                            </div>
                         </div>
 
                         <div className="lx-activity-grid">
                             <div className="lx-column">
                                 <h3>Components</h3>
-                                <div className="lx-draggable lx-draggable-disabled">
-                                    <span>CPU</span>
-                                    <span className="material-symbols-outlined">drag_indicator</span>
-                                </div>
-                                {unplacedItems.map((item) => (
+                                {availableItems.map((item) => (
                                     <button
-                                        key={item}
-                                        className={`lx-draggable ${activeDragItem === item ? 'lx-draggable-selected' : ''}`}
+                                        key={item.id}
+                                        className={`lx-draggable ${selectedItemId === item.id ? 'lx-draggable-selected' : ''}`}
                                         type="button"
                                         draggable
-                                        onDragStart={() => setActiveDragItem(item)}
-                                        onDragEnd={() => setActiveDragItem(null)}
-                                        onClick={() => setActiveDragItem(item)}
+                                        onDragStart={handleDragStart(item.id)}
+                                        onDragEnd={handleDragEnd}
+                                        onClick={() => setSelectedItemId(item.id)}
                                     >
-                                        <span>{item}</span>
+                                        <span>{item.label}</span>
                                         <span className="material-symbols-outlined">drag_indicator</span>
                                     </button>
                                 ))}
-                                {unplacedItems.length === 0 ? <div className="lx-complete-note">All components placed.</div> : null}
+                                {availableItems.length === 0 ? <div className="lx-complete-note">All components placed. Try moving one to another target.</div> : null}
                             </div>
 
                             <div className="lx-column lx-column-targets">
                                 <h3>Descriptions</h3>
-                                <div className="lx-target lx-target-filled">
-                                    <div className="lx-target-badge"><span className="material-symbols-outlined">check</span></div>
-                                    <div className="lx-token">CPU</div>
-                                    <p>The primary component of a computer that acts as its brain, performing most of the processing inside the computer.</p>
-                                </div>
-
-                                <button
-                                    className={`lx-target lx-target-drop ${activeTarget === 'storage' ? 'is-hover' : ''} ${activityTargets.storage && isTargetCorrect('storage', activityTargets.storage) ? 'is-correct' : ''}`}
-                                    type="button"
-                                    onDragOver={(event) => {
-                                        event.preventDefault();
-                                        setActiveTarget('storage');
-                                    }}
-                                    onDragLeave={() => setActiveTarget(null)}
-                                    onDrop={(event) => {
-                                        event.preventDefault();
-                                        placeItemInTarget(activeDragItem, 'storage');
-                                        setActiveTarget(null);
-                                    }}
-                                    onClick={() => placeItemInTarget(activeDragItem, 'storage')}
-                                >
-                                    {activityTargets.storage ? (
-                                        <div className="lx-token">{activityTargets.storage}</div>
-                                    ) : (
-                                        <div className="lx-token lx-token-empty" />
-                                    )}
-                                    <p>Long-term storage device that keeps data even when the power is turned off.</p>
-                                </button>
-
-                                <button
-                                    className={`lx-target lx-target-drop ${activeTarget === 'memory' ? 'is-hover' : ''} ${activityTargets.memory && isTargetCorrect('memory', activityTargets.memory) ? 'is-correct' : ''}`}
-                                    type="button"
-                                    onDragOver={(event) => {
-                                        event.preventDefault();
-                                        setActiveTarget('memory');
-                                    }}
-                                    onDragLeave={() => setActiveTarget(null)}
-                                    onDrop={(event) => {
-                                        event.preventDefault();
-                                        placeItemInTarget(activeDragItem, 'memory');
-                                        setActiveTarget(null);
-                                    }}
-                                    onClick={() => placeItemInTarget(activeDragItem, 'memory')}
-                                >
-                                    {activityTargets.memory ? (
-                                        <div className="lx-token">{activityTargets.memory}</div>
-                                    ) : (
-                                        <div className="lx-token lx-token-empty" />
-                                    )}
-                                    <p>Temporary memory used by the system to store data that is currently being actively used or processed.</p>
-                                </button>
+                                {activity.targets.map((target) => {
+                                    const placedItemId = getPlacedItemForTarget(target.id);
+                                    const placedItemLabel = placedItemId ? getItemLabel(placedItemId) : '';
+                                    const isCorrect = placedItemId ? isTargetCorrect(target.id, placedItemId) : false;
+                                    return (
+                                        <div
+                                            key={target.id}
+                                            className={`lx-target lx-target-drop ${activeTargetId === target.id ? 'is-hover' : ''} ${placedItemId ? 'lx-target-filled' : ''} ${isCorrect ? 'is-correct' : ''}`}
+                                            role="button"
+                                            tabIndex={0}
+                                            onDragOver={(event) => {
+                                                event.preventDefault();
+                                                setActiveTargetId(target.id);
+                                            }}
+                                            onDragLeave={() => setActiveTargetId(null)}
+                                            onDrop={(event) => {
+                                                event.preventDefault();
+                                                placeItemInTarget(dragState?.itemId || selectedItemId, target.id, dragState?.sourceTargetId || null);
+                                                setActiveTargetId(null);
+                                            }}
+                                            onClick={() => placeItemInTarget(selectedItemId, target.id, dragState?.sourceTargetId || null)}
+                                        >
+                                            {isCorrect ? (
+                                                <div className="lx-target-badge"><span className="material-symbols-outlined">check</span></div>
+                                            ) : null}
+                                            <div className="lx-target-head">
+                                                <div className="lx-token">{target.label}</div>
+                                                <p>{target.description}</p>
+                                            </div>
+                                            <div className="lx-target-slot">
+                                                {placedItemId ? (
+                                                    <div
+                                                        className="lx-token lx-token-placed"
+                                                        draggable
+                                                        onDragStart={handleDragStart(placedItemId, target.id)}
+                                                        onDragEnd={handleDragEnd}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setSelectedItemId(placedItemId);
+                                                        }}
+                                                    >
+                                                        <span>{placedItemLabel}</span>
+                                                        <span className="material-symbols-outlined">drag_indicator</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="lx-token lx-token-empty" aria-hidden="true" />
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         <button className="lx-hint" type="button" onClick={handleNeedHint}>
                             <span className="material-symbols-outlined">lightbulb</span>
-                            {activityHintShown ? 'Hint: Try dragging RAM to the Memory slot and Hard Drive to Storage.' : activeDragItem ? 'Click a description to place selected component' : 'Need a hint? Select or drag a component first.'}
+                            {activityHintShown ? activity.hint : selectedItemLabel ? 'Click a description to place the selected component.' : 'Need a hint? Select or drag a component first.'}
                         </button>
                     </section>
                 ) : null}

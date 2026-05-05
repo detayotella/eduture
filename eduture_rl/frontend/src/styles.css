@@ -3077,9 +3077,19 @@ textarea {
   margin-bottom: 18px;
 }
 
+.lx-info-box > div {
+  display: grid;
+  gap: 4px;
+}
+
 .lx-info-box p {
   margin: 0;
   line-height: 1.6;
+}
+
+.lx-info-box-meta {
+  font-size: 0.8rem;
+  color: rgba(66, 71, 84, 0.75);
 }
 
 .lx-activity-grid {
@@ -3137,6 +3147,10 @@ textarea {
 .lx-target-drop {
   width: 100%;
   text-align: left;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
   cursor: pointer;
   transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
@@ -3156,6 +3170,16 @@ textarea {
   color: var(--muted);
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+.lx-target-head {
+  display: grid;
+  gap: 6px;
+}
+
+.lx-target-slot {
+  align-self: center;
+  justify-self: end;
 }
 
 .lx-target-filled {
@@ -3191,6 +3215,18 @@ textarea {
   font-weight: 700;
   color: #166534;
   margin-bottom: 10px;
+}
+
+.lx-token-placed {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  cursor: grab;
+}
+
+.lx-token-placed:active {
+  cursor: grabbing;
 }
 
 .lx-token-empty {

@@ -34,9 +34,10 @@ services:
           "CMD-SHELL",
           'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/health'').read()"',
         ]
+      start_period: 30s
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 12
 
 volumes:
   eduture_db_data:

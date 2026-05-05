@@ -249,6 +249,36 @@ export const learningContent = {
         body: 'A computer is an electronic device that processes information through hardware and software working in coordination. It stores, retrieves, and transforms data to help people solve problems, create content, and communicate efficiently.',
         callout: 'A computer is not just a device you use. It is a system that constantly translates human intent into machine operations.',
         estimated: '12 min',
+        activity: {
+            title: 'Match the hardware roles',
+            intro: 'Drag each component into the description that fits it best. You can also click a component and then click a target card to place it.',
+            hint: 'The CPU processes, RAM holds active work, and the hard drive keeps files for later.',
+            items: [
+                { id: 'cpu', label: 'CPU' },
+                { id: 'ram', label: 'RAM' },
+                { id: 'hard-drive', label: 'Hard Drive' },
+            ],
+            targets: [
+                {
+                    id: 'processing',
+                    label: 'Processing core',
+                    description: "The main chip that carries out instructions and coordinates most of the computer's work.",
+                    correctItem: 'CPU',
+                },
+                {
+                    id: 'memory',
+                    label: 'Working memory',
+                    description: 'Temporary memory that keeps active data close at hand while programs are running.',
+                    correctItem: 'RAM',
+                },
+                {
+                    id: 'storage',
+                    label: 'Long-term storage',
+                    description: 'The place where files remain saved even after the power is turned off.',
+                    correctItem: 'Hard Drive',
+                },
+            ],
+        },
     },
     documents: {
         title: 'Working with Documents',
@@ -256,6 +286,36 @@ export const learningContent = {
         body: 'Document workflows bring structure to everyday productivity tasks. Good organization, consistent naming, and regular backups help learners move confidently between creation, review, and sharing.',
         callout: 'Clarity improves speed. A clean document process reduces the need to rethink simple steps.',
         estimated: '10 min',
+        activity: {
+            title: 'Build a document workflow',
+            intro: 'Match each workflow step to the description it belongs to. The cards update as you move them, so you can see the process unfold.',
+            hint: 'Draft comes first, review comes next, and backup protects the final copy.',
+            items: [
+                { id: 'draft', label: 'Draft' },
+                { id: 'review', label: 'Review' },
+                { id: 'backup', label: 'Backup' },
+            ],
+            targets: [
+                {
+                    id: 'create',
+                    label: 'Create',
+                    description: 'Shape the first version of the document and get the ideas onto the page.',
+                    correctItem: 'Draft',
+                },
+                {
+                    id: 'check',
+                    label: 'Check',
+                    description: 'Read through the work, fix mistakes, and improve the final message.',
+                    correctItem: 'Review',
+                },
+                {
+                    id: 'protect',
+                    label: 'Protect',
+                    description: 'Keep a safe copy so the document can be restored if something goes wrong.',
+                    correctItem: 'Backup',
+                },
+            ],
+        },
     },
 };
 

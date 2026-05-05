@@ -5,20 +5,15 @@ from uuid import uuid4
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import inspect, text
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi.extension import _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 
 from .config import get_settings
-from .auth import hash_password
-from .database import SessionLocal, engine
 from .limiter import limiter
 from .logging_config import setup_logging
-from .models import ContentFragment, Learner
 from .routers import admin, assessment, auth, content, interaction, learning_style
-from .sample_data import seed_content_rows
 
 settings = get_settings()
 setup_logging()
@@ -37,17 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-def _ensure_avatar_column() -> None:
-    inspector = inspect(engine)
-    if "learners" not in inspector.get_table_names():
-        return
-    column_names = {column["name"] for column in inspector.get_columns("learners")}
-    if "avatar_url" in column_names:
-        return
-    with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE learners ADD COLUMN avatar_url TEXT"))
 
 
 @app.middleware("http")
@@ -78,33 +62,6 @@ app.include_router(content.router)
 app.include_router(interaction.router)
 app.include_router(assessment.router)
 app.include_router(admin.router)
-
-
-@app.on_event("startup")
-def startup_event() -> None:
-    _ensure_avatar_column()
-    db = SessionLocal()
-    try:
-        if settings.admin_bootstrap_enabled:
-            if not settings.admin_bootstrap_email or not settings.admin_bootstrap_password:
-                raise RuntimeError("Admin bootstrap is enabled but bootstrap credentials are missing")
-            admin_user = db.query(Learner).filter(Learner.email == settings.admin_bootstrap_email).first()
-            if admin_user is None:
-                db.add(
-                    Learner(
-                        email=settings.admin_bootstrap_email,
-                        password_hash=hash_password(settings.admin_bootstrap_password),
-                        full_name=settings.admin_bootstrap_full_name,
-                        is_admin=True,
-                    )
-                )
-                db.commit()
-        if db.query(ContentFragment).count() == 0:
-            for fragment in seed_content_rows():
-                db.add(fragment)
-            db.commit()
-    finally:
-        db.close()
 
 
 @app.get("/")
