@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
-import { learningContent, getCurrentLearnerId } from '../constants/learningData';
+import { learningContent, getCurrentLearnerId, getModuleForTopic, getTopicsInModule } from '../constants/learningData';
 import { useAuth } from '../context/AuthContext';
 
 export default function LearningPage() {
     const { topicId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const content = learningContent[topicId] || learningContent['computer-basics'];
+    const content = learningContent[topicId] || learningContent['intro-computers'];
     const activity = content.activity || {
         title: 'Match the learning pieces',
         intro: 'Use drag-and-drop or click a component and then a target card.',
@@ -60,8 +60,18 @@ export default function LearningPage() {
         return () => clearInterval(interval);
     }, [contentType, theoryTimer, activityTimer, exerciseTimer]);
 
-    const exerciseOptions = ['Monitor', 'Printer', 'Keyboard', 'Speakers'];
-    const correctExerciseOption = 'Keyboard';
+    const exercise = content.exercise || {
+        title: 'Knowledge Check',
+        question: 'Which of the following is an input device?',
+        options: ['Monitor', 'Printer', 'Keyboard', 'Speakers'],
+        answer: 2,
+    };
+
+    const exerciseTitle = exercise.title || 'Knowledge Check';
+    const exerciseQuestion = exercise.question || 'Which of the following is correct?';
+    const exerciseOptions = exercise.options || ['Monitor', 'Printer', 'Keyboard', 'Speakers'];
+    const correctAnswerIndex = exercise.answer || 2;
+    const correctExerciseOption = exerciseOptions[correctAnswerIndex];
     const [selectedOption, setSelectedOption] = useState(null);
 
     const getItemLabel = (itemId) => activity.items.find((item) => item.id === itemId)?.label || '';
@@ -136,11 +146,11 @@ export default function LearningPage() {
         try {
             await api.post('/interaction/record', {
                 learner_id: getCurrentLearnerId(user),
-                content_id: 1,
+                content_id: topicId,
                 completed: true,
                 quiz_score: 100,
-                expected_time: 12,
-                actual_time: 12 - theoryTimer / 60,
+                expected_time: parseInt(content.estimated),
+                actual_time: Math.round((12 * 60 - theoryTimer) / 60),
                 is_revisit: false,
                 scroll_depth: 0.9,
                 click_count: 3,
@@ -156,9 +166,37 @@ export default function LearningPage() {
         setActivityHintShown(true);
     };
 
+    const handleNextTopic = () => {
+        if (contentType === 'theory') {
+            setContentType('activity');
+        } else if (contentType === 'activity') {
+            setContentType('exercise');
+        } else if (nextTopic) {
+            navigate(`/learn/${nextTopic.id}`);
+            setContentType('theory');
+        }
+    };
+
+    const handlePreviousTopic = () => {
+        if (contentType === 'exercise') {
+            setContentType('activity');
+        } else if (contentType === 'activity') {
+            setContentType('theory');
+        } else if (prevTopic) {
+            navigate(`/learn/${prevTopic.id}`);
+            setContentType('exercise');
+        }
+    };
+
     const progressWidth = contentType === 'theory' ? '30%' : contentType === 'activity' ? '65%' : '90%';
     const timerText = contentType === 'theory' ? formatTimer(theoryTimer) : contentType === 'activity' ? formatTimer(activityTimer) : formatTimer(exerciseTimer);
     const moduleLabel = contentType === 'theory' ? 'Computer Essentials' : contentType === 'activity' ? 'Hardware Essentials' : 'Hardware Basics';
+
+    const currentModule = getModuleForTopic(topicId);
+    const availableTopics = getTopicsInModule(currentModule);
+    const currentTopicIndex = availableTopics.findIndex(t => t.id === topicId);
+    const nextTopic = currentTopicIndex < availableTopics.length - 1 ? availableTopics[currentTopicIndex + 1] : null;
+    const prevTopic = currentTopicIndex > 0 ? availableTopics[currentTopicIndex - 1] : null;
 
     return (
         <div className="lx-shell">
@@ -177,6 +215,30 @@ export default function LearningPage() {
                     <div className="lx-progress-fill" style={{ width: progressWidth }} />
                 </div>
             </header>
+
+            <div className="lx-topic-progress">
+                <div className="lx-topic-progress-track">
+                    {availableTopics.map((topic, idx) => (
+                        <div key={topic.id} className="lx-progress-segment">
+                            <button
+                                className={`lx-progress-dot ${topicId === topic.id ? 'active' : ''}`}
+                                type="button"
+                                onClick={() => navigate(`/learn/${topic.id}`)}
+                                title={topic.title}
+                            >
+                                <span className="lx-dot-number">{idx + 1}</span>
+                            </button>
+                            {idx < availableTopics.length - 1 && (
+                                <div className="lx-progress-line" />
+                            )}
+                        </div>
+                    ))}
+                </div>
+                <div className="lx-progress-title">
+                    <h2>{availableTopics[currentTopicIndex]?.title}</h2>
+                    <p className="lx-progress-meta">{currentTopicIndex + 1} of {availableTopics.length}</p>
+                </div>
+            </div>
 
             <main className="lx-main">
                 <div className="lx-tabs" role="tablist" aria-label="Learning mode">
@@ -335,8 +397,8 @@ export default function LearningPage() {
                             <span>✏️</span>
                             <span>Exercise</span>
                         </div>
-                        <h1 className="lx-title lx-title-sm">Knowledge Check</h1>
-                        <p className="lx-subtitle">Which of the following is an input device?</p>
+                        <h1 className="lx-title lx-title-sm">{exerciseTitle}</h1>
+                        <p className="lx-subtitle">{exerciseQuestion}</p>
 
                         <div className="lx-options">
                             {exerciseOptions.map((option) => {
@@ -374,14 +436,14 @@ export default function LearningPage() {
 
             <footer className="lx-footer">
                 <div className="lx-footer-inner">
-                    <button className="lx-footer-btn secondary" type="button">Previous</button>
+                    <button className="lx-footer-btn secondary" type="button" onClick={handlePreviousTopic}>Previous</button>
                     {contentType === 'exercise' ? (
-                        <button className="lx-footer-btn primary" type="button">
+                        <button className="lx-footer-btn primary" type="button" onClick={() => alert('Topic completed! Well done.')}>
                             Complete Topic
                             <span className="material-symbols-outlined">check</span>
                         </button>
                     ) : (
-                        <button className="lx-footer-btn primary" type="button">
+                        <button className="lx-footer-btn primary" type="button" onClick={handleNextTopic}>
                             {contentType === 'theory' ? 'Next Topic' : 'Next'}
                             <span className="material-symbols-outlined">arrow_forward</span>
                         </button>

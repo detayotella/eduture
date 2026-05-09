@@ -355,11 +355,11 @@ export default function ProgressPage() {
                         <div className="prg-event-icon active"><span className="material-symbols-outlined">arrow_forward</span></div>
                         <div className="prg-event-card">
                             <div className="prg-event-head">
-                                <h4>Current recommendation</h4>
+                                <h4>Recommended Next Step</h4>
                                 <time>{lastRoute?.recorded_at ? formatRelativeTime(new Date(lastRoute.recorded_at)) : 'live'}</time>
                             </div>
-                            <p><strong>{recommendedTitle}</strong> • {recommendedType}</p>
-                            <p>{recommendedContent}</p>
+                            <p><strong>{recommendedTitle || 'Continue Learning'}</strong></p>
+                            <p>{recommendedContent || 'Based on your progress, the next recommended module will be personalized to your learning style and pace.'}</p>
                             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
                                 <button type="button" className="btn btn-primary" onClick={reviewModules}>Open pathways</button>
                                 <button type="button" className="btn btn-soft" onClick={exportData}>Export progress</button>

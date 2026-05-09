@@ -108,92 +108,626 @@ QUESTIONNAIRE_QUESTIONS = [
 ]
 
 CONTENT_SEED = [
+    # ========== MODULE 1: COMPUTER ESSENTIALS - TOPIC 1: INTRODUCTION TO COMPUTERS ==========
+    
+    # THEORY
     {
-        "module_id": "icdl-essentials",
-        "topic_id": "computer-basics",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "intro-computers",
         "content_type": "theory",
         "sequence_order": 1,
-        "title": "Introduction to Computer Essentials",
-        "content_data": "Understand the purpose of a computer, common hardware, and safe working habits.",
+        "title": "What is a Computer?",
+        "content_data": """LEARNING OBJECTIVES:
+At the end of this lesson, learners should be able to:
+- Define a computer
+- Identify major computer components
+- Explain basic computer functions
+- Describe common uses of computers
+
+CONTENT:
+A computer is an electronic device that accepts data, processes it according to instructions, stores it, and produces meaningful information.
+
+Computers are widely used in modern society because they help individuals and organizations complete tasks more efficiently and accurately.
+
+Computers are commonly used in:
+- Schools
+- Hospitals
+- Offices
+- Banks
+- Businesses
+- Homes
+
+A computer system consists of several important components that work together.
+
+MAJOR COMPONENTS OF A COMPUTER:
+
+1. Monitor
+The monitor displays visual output from the computer. It allows users to see text, images, videos, and software applications.
+
+2. Keyboard
+The keyboard is an input device used for typing text, numbers, and commands into the computer.
+
+3. Mouse
+The mouse is a pointing device used for selecting items, opening applications, and interacting with graphical interfaces.
+
+4. System Unit
+The system unit contains the main processing hardware of the computer including:
+- Processor (CPU)
+- Memory (RAM)
+- Storage devices
+- Motherboard
+The CPU is often referred to as the "brain" of the computer because it performs calculations and executes instructions.
+
+FUNCTIONS OF A COMPUTER:
+A computer performs four major functions:
+1. Input - The computer receives data using input devices
+2. Processing - The CPU processes the received data
+3. Storage - Data and information can be saved for future use
+4. Output - The computer displays or produces results for the user
+
+SUMMARY:
+Computers are essential tools used in everyday life. Understanding the major parts and functions of a computer provides the foundation for digital literacy.""",
         "difficulty": 0.2,
+        "estimated_time_minutes": 10,
     },
+    
+    # EXAMPLE
     {
-        "module_id": "icdl-essentials",
-        "topic_id": "computer-basics",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "intro-computers",
         "content_type": "example",
         "sequence_order": 2,
-        "title": "Hardware in Practice",
-        "content_data": "See how the CPU, memory, and storage work together in a real workflow.",
-        "difficulty": 0.35,
+        "title": "Desktop vs Laptop Computers",
+        "content_data": """Computers come in different forms depending on how they are used. Two common types of computers are:
+- Desktop computers
+- Laptop computers
+
+DESKTOP COMPUTER:
+A desktop computer is designed to remain in one location. It usually consists of separate components including:
+- Monitor
+- Keyboard
+- Mouse
+- System unit
+
+Desktop computers are commonly used in:
+- Offices
+- Schools
+- Computer laboratories
+
+Advantages of Desktop Computers:
+- Larger screen size
+- Easier hardware upgrades
+- More powerful performance
+- Better cooling systems
+
+Example Scenario:
+A university computer laboratory uses desktop computers because students use the systems for programming, research, and practical exercises.
+
+LAPTOP COMPUTER:
+A laptop computer is portable and combines:
+- Monitor
+- Keyboard
+- Battery
+- Touchpad
+- Processing components
+into one device.
+
+Laptop computers are designed for mobility and convenience.
+
+Advantages of Laptop Computers:
+- Portable
+- Battery powered
+- Compact design
+- Convenient for travel
+
+Example Scenario:
+A student uses a laptop computer to attend online classes, complete assignments, and browse the internet while traveling.
+
+COMPARISON SUMMARY:
+Feature          | Desktop        | Laptop
+Portability      | Low            | High
+Upgradeability   | Easy           | Limited
+Battery          | No             | Yes
+Space Usage      | More space     | Compact""",
+        "difficulty": 0.2,
+        "estimated_time_minutes": 8,
     },
+    
+    # ACTIVITY
     {
-        "module_id": "icdl-essentials",
-        "topic_id": "computer-basics",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "intro-computers",
         "content_type": "activity",
         "sequence_order": 3,
-        "title": "Identify the Components",
-        "content_data": "Match hardware parts to their function using the desktop simulator.",
-        "difficulty": 0.45,
+        "title": "Identify Computer Components",
+        "content_data": """ACTIVITY INSTRUCTIONS:
+In this activity, learners will identify major computer hardware components.
+
+TASK 1 — OBSERVATION:
+Look at a nearby computer system and identify the following:
+1. Monitor
+2. Keyboard
+3. Mouse
+4. System Unit
+5. Speakers (if available)
+
+TASK 2 — CLASSIFICATION:
+For each component:
+- Write its name
+- State whether it is input or output hardware
+- Explain its function
+
+TASK 3 — REFLECTION:
+Answer the following questions:
+1. Which component do you use the most?
+2. Why is the CPU called the brain of the computer?
+3. What would happen if the monitor stopped working?
+
+EXPECTED LEARNING OUTCOME:
+After this activity, learners should be able to recognize basic computer hardware and explain their functions.""",
+        "difficulty": 0.3,
+        "estimated_time_minutes": 15,
     },
+    
+    # EXERCISE
     {
-        "module_id": "icdl-essentials",
-        "topic_id": "computer-basics",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "intro-computers",
         "content_type": "exercise",
         "sequence_order": 4,
-        "title": "Basics Checkpoint",
-        "content_data": "Answer a short knowledge check and receive adaptive feedback.",
-        "difficulty": 0.5,
+        "title": "Computer Basics Assessment",
+        "content_data": """INSTRUCTIONS: Choose the correct answer for each question.
+
+QUESTION 1:
+Which device is mainly used for typing information into the computer?
+A. Monitor
+B. Keyboard
+C. Speaker
+D. Printer
+CORRECT ANSWER: B
+EXPLANATION: The keyboard is used to enter text and commands into the computer.
+
+QUESTION 2:
+Which computer type is designed for portability?
+A. Desktop
+B. Mainframe
+C. Laptop
+D. Server
+CORRECT ANSWER: C
+EXPLANATION: Laptops are portable computers designed for mobility.
+
+QUESTION 3:
+What is the main function of the monitor?
+A. To process data
+B. To store files
+C. To display output
+D. To connect to the internet
+CORRECT ANSWER: C
+
+QUESTION 4:
+Which component performs calculations and processes instructions?
+A. Keyboard
+B. CPU
+C. Mouse
+D. Printer
+CORRECT ANSWER: B""",
+        "difficulty": 0.3,
+        "estimated_time_minutes": 10,
     },
+
+    # ========== MODULE 1: COMPUTER ESSENTIALS - TOPIC 2: FILE MANAGEMENT ==========
+    
+    # THEORY
     {
-        "module_id": "icdl-productivity",
-        "topic_id": "documents",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "file-management",
         "content_type": "theory",
         "sequence_order": 1,
-        "title": "Working with Documents",
-        "content_data": "Learn file organization, document structure, and editing habits.",
+        "title": "Understanding Files and Folders",
+        "content_data": """LEARNING OBJECTIVES:
+At the end of this lesson, learners should be able to:
+- Explain what files and folders are
+- Organize files properly
+- Identify common file types
+- Apply good file management practices
+
+CONTENT:
+Computers store information in the form of files. A file is a collection of related data stored under a specific name.
+
+Examples of files include:
+- Documents
+- Images
+- Videos
+- Presentations
+- Spreadsheets
+- Audio files
+
+WHAT IS A FOLDER?
+A folder is a container used to organize and group files. Folders help users:
+- Keep files organized
+- Locate information quickly
+- Manage digital content efficiently
+
+Folders may also contain subfolders.
+
+COMMON FILE EXTENSIONS:
+File Type       | Extension
+Word Document   | .docx
+Image          | .jpg
+Audio          | .mp3
+Video          | .mp4
+Spreadsheet    | .xlsx
+
+IMPORTANCE OF FILE MANAGEMENT:
+Good file management helps:
+- Reduce confusion
+- Prevent data loss
+- Improve productivity
+- Simplify document retrieval
+
+FILE MANAGEMENT BEST PRACTICES:
+1. Use meaningful file names
+2. Organize files into folders
+3. Avoid duplicate files
+4. Backup important files regularly
+5. Delete unnecessary files
+
+SUMMARY:
+Files and folders are essential for organizing digital information effectively.""",
         "difficulty": 0.3,
+        "estimated_time_minutes": 12,
     },
+    
+    # EXAMPLE
     {
-        "module_id": "icdl-productivity",
-        "topic_id": "documents",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "file-management",
         "content_type": "example",
         "sequence_order": 2,
-        "title": "Document Workflow Example",
-        "content_data": "Follow a realistic workflow for creating and sharing a document.",
-        "difficulty": 0.4,
+        "title": "Organizing School Assignments",
+        "content_data": """A student creates a folder structure to organize academic work.
+
+The student creates a main folder named: "University Work"
+
+Inside the folder, the student creates subfolders:
+- Assignments
+- Lecture Notes
+- Projects
+- Past Questions
+
+The student saves a Word document named: "ICT_Assignment_Week1.docx"
+inside the Assignments folder.
+
+This organization method helps the student:
+- Find files easily
+- Avoid losing assignments
+- Manage academic documents efficiently
+
+FOLDER STRUCTURE VISUALIZATION:
+University Work/
+├── Assignments/
+│   └── ICT_Assignment_Week1.docx
+├── Lecture Notes/
+├── Projects/
+└── Past Questions/
+
+This hierarchical structure demonstrates proper file organization practices.""",
+        "difficulty": 0.3,
+        "estimated_time_minutes": 8,
     },
+    
+    # ACTIVITY
     {
-        "module_id": "icdl-productivity",
-        "topic_id": "documents",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "file-management",
         "content_type": "activity",
         "sequence_order": 3,
-        "title": "Organize the Workspace",
-        "content_data": "Arrange files and folders to mirror a clean office workflow.",
-        "difficulty": 0.55,
+        "title": "Create and Organize Digital Files",
+        "content_data": """ACTIVITY INSTRUCTIONS:
+Perform the following tasks:
+
+1. Create a folder named: "EDUTURE Practice"
+
+2. Inside the folder, create the following subfolders:
+   - Notes
+   - Assignments
+   - Projects
+
+3. Create a text document named: "My_First_File.txt"
+
+4. Save the document inside the Assignments folder.
+
+5. Rename the file to: "Computer_Basics_Notes.txt"
+
+6. Move the file into the Notes folder.
+
+REFLECTION QUESTIONS:
+1. Why are folders useful?
+2. What problems can occur when files are poorly organized?
+3. How can backups protect important information?
+
+EXPECTED FOLDER STRUCTURE AFTER ACTIVITY:
+EDUTURE Practice/
+├── Notes/
+│   └── Computer_Basics_Notes.txt
+├── Assignments/
+└── Projects/""",
+        "difficulty": 0.4,
+        "estimated_time_minutes": 15,
     },
+    
+    # EXERCISE
     {
-        "module_id": "icdl-productivity",
-        "topic_id": "documents",
+        "module_id": "icdl-computer-essentials",
+        "topic_id": "file-management",
         "content_type": "exercise",
         "sequence_order": 4,
-        "title": "Documents Assessment",
-        "content_data": "Demonstrate mastery through a guided exercise and short quiz.",
-        "difficulty": 0.65,
+        "title": "Files and Folders Quiz",
+        "content_data": """INSTRUCTIONS: Choose the correct answer for each question.
+
+QUESTION 1:
+What is the purpose of a folder?
+A. To display videos
+B. To organize files
+C. To browse websites
+D. To print documents
+CORRECT ANSWER: B
+
+QUESTION 2:
+Which extension is commonly associated with Microsoft Word documents?
+A. .jpg
+B. .docx
+C. .mp3
+D. .png
+CORRECT ANSWER: B
+
+QUESTION 3:
+Which of the following is considered good file management practice?
+A. Using random file names
+B. Storing all files in one folder
+C. Organizing files into categories
+D. Deleting files immediately
+CORRECT ANSWER: C
+
+ADDITIONAL PRACTICE QUESTIONS:
+- What is a file?
+- Name at least three common file extensions
+- Why is backup important?
+- How should you name your files for easy retrieval?""",
+        "difficulty": 0.4,
+        "estimated_time_minutes": 10,
+    },
+
+    # ========== MODULE 2: ONLINE ESSENTIALS - TOPIC 1: INTERNET BASICS ==========
+    
+    # THEORY
+    {
+        "module_id": "icdl-online-essentials",
+        "topic_id": "internet-basics",
+        "content_type": "theory",
+        "sequence_order": 1,
+        "title": "Introduction to the Internet",
+        "content_data": """LEARNING OBJECTIVES:
+At the end of this lesson, learners should be able to:
+- Define the internet
+- Explain common internet uses
+- Identify web browsers
+- Describe basic online activities
+
+CONTENT:
+The internet is a global network that connects millions of computers and digital devices worldwide.
+
+The internet allows users to:
+- Communicate
+- Access information
+- Watch videos
+- Participate in online learning
+- Use online services
+
+COMMON INTERNET SERVICES:
+
+1. Web Browsing
+Users visit websites using web browsers.
+
+2. Email Communication
+People send and receive electronic messages.
+
+3. Online Learning
+Students access educational materials online.
+
+4. Social Communication
+People communicate through social and messaging platforms.
+
+WEB BROWSERS:
+A web browser is software used to access websites.
+
+Examples include:
+- Google Chrome
+- Mozilla Firefox
+- Microsoft Edge
+- Safari
+
+WEBSITE ADDRESSES:
+Every website has a unique web address called a URL (Uniform Resource Locator).
+
+Example: https://www.example.com
+
+URL STRUCTURE:
+- https:// = Protocol (secure connection)
+- www = World Wide Web
+- example = Domain name
+- .com = Top-level domain
+
+SUMMARY:
+The internet provides access to global communication and information resources.""",
+        "difficulty": 0.2,
+        "estimated_time_minutes": 10,
+    },
+    
+    # EXAMPLE
+    {
+        "module_id": "icdl-online-essentials",
+        "topic_id": "internet-basics",
+        "content_type": "example",
+        "sequence_order": 2,
+        "title": "Searching for Educational Information Online",
+        "content_data": """A student wants to learn about the benefits of computers in education.
+
+The student performs the following steps:
+
+STEP 1: Open a web browser
+- Click on the browser icon (Chrome, Firefox, Edge, or Safari)
+
+STEP 2: Visit a search engine
+- Navigate to Google, Bing, or another search engine website
+
+STEP 3: Type the search query
+- Search for: "Benefits of Computers in Education"
+
+STEP 4: Press Enter
+- The search engine displays a list of relevant websites
+
+STEP 5: Review the search results
+- Look through titles and descriptions
+- Click on promising educational websites
+
+STEP 6: Gather information
+- Read articles and take notes
+- Visit multiple sources for comprehensive understanding
+
+This example demonstrates:
+- How to use a web browser
+- How to conduct an online search
+- How the internet helps users access knowledge quickly
+- How to find educational resources online
+
+REAL-WORLD APPLICATIONS:
+- Students researching for assignments
+- Professionals learning new skills
+- Families finding healthcare information
+- Everyone accessing news and current events""",
+        "difficulty": 0.2,
+        "estimated_time_minutes": 8,
+    },
+    
+    # ACTIVITY
+    {
+        "module_id": "icdl-online-essentials",
+        "topic_id": "internet-basics",
+        "content_type": "activity",
+        "sequence_order": 3,
+        "title": "Explore an Educational Website",
+        "content_data": """ACTIVITY INSTRUCTIONS:
+
+1. Open a web browser.
+
+2. Visit an educational website (e.g., Khan Academy, Coursera, Wikipedia, or an educational institution website).
+
+3. Identify the following website components:
+   - Address bar (showing the URL)
+   - Navigation menu (links at top or side)
+   - Search feature (search box)
+   - Homepage (main landing page)
+
+4. Search for an educational topic of your interest using the website's search feature.
+
+5. Write down:
+   - What information you found
+   - How the website was organized
+   - How easy it was to navigate
+
+REFLECTION QUESTIONS:
+
+1. Why is the internet useful for students?
+   - Provides access to vast educational resources
+   - Enables remote learning opportunities
+   - Allows communication with instructors and peers
+   - Offers diverse perspectives on topics
+
+2. What challenges can occur when searching online?
+   - Finding unreliable information
+   - Information overload
+   - Difficulty distinguishing quality sources
+   - Time management
+
+3. Why is it important to verify online information?
+   - Not all online content is accurate
+   - Misinformation can spread quickly
+   - Multiple sources help confirm facts
+   - Critical thinking is essential in digital literacy""",
+        "difficulty": 0.3,
+        "estimated_time_minutes": 15,
+    },
+    
+    # EXERCISE
+    {
+        "module_id": "icdl-online-essentials",
+        "topic_id": "internet-basics",
+        "content_type": "exercise",
+        "sequence_order": 4,
+        "title": "Internet Basics Quiz",
+        "content_data": """INSTRUCTIONS: Choose the correct answer for each question.
+
+QUESTION 1:
+Which software is used to access websites?
+A. Calculator
+B. Browser
+C. Scanner
+D. Printer
+CORRECT ANSWER: B
+EXPLANATION: A web browser is software specifically designed to access and display websites.
+
+QUESTION 2:
+What does the internet connect?
+A. Printers only
+B. Phones only
+C. Computers and devices worldwide
+D. Monitors only
+CORRECT ANSWER: C
+EXPLANATION: The internet is a global network connecting millions of computers and digital devices worldwide.
+
+QUESTION 3:
+Which of the following is an example of a web browser?
+A. Microsoft Word
+B. Google Chrome
+C. VLC Media Player
+D. Adobe Reader
+CORRECT ANSWER: B
+EXPLANATION: Google Chrome is one of the most popular web browsers for accessing websites.
+
+QUESTION 4:
+What does URL stand for?
+A. Universal Resource Library
+B. Uniform Resource Locator
+C. Universal Retrieval Language
+D. Unified Remote Link
+CORRECT ANSWER: B
+
+QUESTION 5:
+Which of these is NOT an internet service?
+A. Web browsing
+B. Email
+C. Printing local documents
+D. Online learning
+CORRECT ANSWER: C
+EXPLANATION: Printing local documents is a computer function, not an internet service.""",
+        "difficulty": 0.3,
+        "estimated_time_minutes": 10,
     },
 ]
 
 MODULE_SUMMARIES = {
-    "icdl-essentials": {
-        "module_id": "icdl-essentials",
-        "title": "ICDL Computer Essentials",
-        "description": "Foundational computing concepts for first-time learners.",
-        "topics": ["computer-basics"],
+    "icdl-computer-essentials": {
+        "module_id": "icdl-computer-essentials",
+        "title": "Computer Essentials",
+        "description": "Foundational computing concepts: hardware, file management, and I/O devices.",
+        "topics": ["intro-computers", "file-management", "input-output-devices"],
     },
-    "icdl-productivity": {
-        "module_id": "icdl-productivity",
-        "title": "ICDL Productivity",
-        "description": "Core document workflows and adaptive practice tasks.",
-        "topics": ["documents"],
+    "icdl-online-essentials": {
+        "module_id": "icdl-online-essentials",
+        "title": "Online Essentials",
+        "description": "Basics of internet use, web browsing, and online safety.",
+        "topics": ["internet-basics"],
     },
 }
 

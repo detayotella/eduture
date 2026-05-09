@@ -5,8 +5,8 @@ import { Pill, SectionHeader } from '../components/ui/Cards';
 
 const pathwayItems = [
     { name: 'Computer Essentials', state: 'In progress', completion: 68 },
-    { name: 'Data Structures II', state: 'Queued', completion: 0 },
-    { name: 'Applied Problem Solving', state: 'Locked', completion: 0 },
+    { name: 'Online Essentials', state: 'Queued', completion: 0 },
+    { name: 'Digital Citizenship', state: 'Locked', completion: 0 },
 ];
 
 export default function PathwaysPage() {
@@ -44,7 +44,7 @@ export default function PathwaysPage() {
             </div>
 
             <div className="fx-actions-row">
-                <NavLink to="/learn/computer-basics" className="btn btn-primary">Continue active pathway</NavLink>
+                <NavLink to="/learn/intro-computers" className="btn btn-primary">Continue active pathway</NavLink>
             </div>
         </DashboardShell>
     );

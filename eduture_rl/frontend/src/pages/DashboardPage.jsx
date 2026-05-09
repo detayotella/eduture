@@ -149,22 +149,22 @@ export default function DashboardPage() {
                                     <span>68%</span>
                                 </div>
                             </div>
-                            <NavLink className="db-primary-btn" to={`/learn/${recommendation?.content?.topic_id || 'computer-basics'}`}>Continue Learning</NavLink>
+                            <NavLink className="db-primary-btn" to={`/learn/${recommendation?.content?.topic_id || 'intro-computers'}`}>Continue Learning</NavLink>
                         </section>
 
                         <div className="db-grid">
                             <section className="db-left-stack">
                                 <div className="db-curated">
                                     <div className="db-curated-head">
-                                        <h3>Curated for You</h3>
+                                        <h3>Personalized for Your Style</h3>
                                         <div className="db-style-chip"><span />Activist Style</div>
                                     </div>
                                     <div className="db-curated-body">
                                         <img src={curatedImage} alt="Curated" />
                                         <div>
-                                            <h4>Design Thinking in Action</h4>
-                                            <p>Hands-on exercises to apply your theoretical knowledge to real-world interface problems.</p>
-                                            <NavLink to="/learn/computer-basics">Start Exercise <span className="material-symbols-outlined">arrow_forward</span></NavLink>
+                                            <h4>Computer Essentials</h4>
+                                            <p>Master fundamental computing concepts through hands-on practice. Build your foundation in hardware, file management, and device operations.</p>
+                                            <NavLink to="/learn/intro-computers">Start Module <span className="material-symbols-outlined">arrow_forward</span></NavLink>
                                         </div>
                                     </div>
                                 </div>
@@ -172,9 +172,9 @@ export default function DashboardPage() {
                                 <div className="db-pathway">
                                     <img src={pathwayImage} alt="Pathway" />
                                     <div className="db-pathway-content">
-                                        <div className="db-pathway-kicker">Upcoming Pathway</div>
-                                        <h3>Data Structures &amp; Algorithms</h3>
-                                        <p>Unlock the foundational logic required for advanced computational thinking.</p>
+                                        <div className="db-pathway-kicker">Recommended Next</div>
+                                        <h3>Online Essentials</h3>
+                                        <p>Navigate the internet safely and effectively. Learn web browsing, online communication, and digital citizenship principles.</p>
                                         <div className="db-pathway-footer">
                                             <div><span className="material-symbols-outlined">schedule</span><span>Est. {summary?.estimated_hours ?? 12} Hours</span></div>
                                             <button type="button">Preview Syllabus</button>
@@ -246,13 +246,13 @@ export default function DashboardPage() {
                                 <div><span>Completion</span><strong>68%</strong></div>
                                 <div className="db-mobile-progress"><span /></div>
                             </div>
-                            <NavLink to="/learn/computer-basics">Resume<span className="material-symbols-outlined">play_arrow</span></NavLink>
+                            <NavLink to="/learn/intro-computers">Resume<span className="material-symbols-outlined">play_arrow</span></NavLink>
                         </div>
                     </section>
 
                     <section className="db-mobile-curated">
                         <div className="db-mobile-section-head">
-                            <h3>Curated for You</h3>
+                            <h3>Personalized for Your Style</h3>
                             <span><span className="material-symbols-outlined">tune</span>Theorist Model</span>
                         </div>
                         <div className="db-mobile-bento">
@@ -260,8 +260,8 @@ export default function DashboardPage() {
                                 <div className="db-mobile-primary-inner">
                                     <img src={curatedImage} alt="Curated" />
                                     <div>
-                                        <h4>Systems Thinking Fundamentals</h4>
-                                        <p>Deep dive into structural logic.</p>
+                                        <h4>Computer Essentials</h4>
+                                        <p>Master fundamental computing concepts through hands-on practice.</p>
                                         <span>{summary?.recommended_read_minutes ?? recommendation?.content?.estimated_time_minutes ?? 45} MIN READ</span>
                                     </div>
                                 </div>

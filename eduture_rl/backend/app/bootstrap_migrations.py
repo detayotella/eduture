@@ -7,6 +7,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, inspect, text
 
 from .config import get_settings
+from .utils.database import wait_for_database
 
 
 MANAGED_TABLES = {
@@ -24,6 +25,7 @@ def main() -> None:
     backend_root = Path(__file__).resolve().parent.parent
     settings = get_settings()
     engine = create_engine(settings.database_url)
+    wait_for_database(engine)
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
 

@@ -5,9 +5,9 @@ import { Pill, SectionHeader } from '../components/ui/Cards';
 
 export default function ExplorePage() {
     const tracks = [
-        { title: 'Systems Thinking Fundamentals', summary: 'Deep-dive learning path with concept maps and guided practice.', to: '/learn/computer-basics' },
-        { title: 'Hardware Essentials', summary: 'Hands-on pathway focused on practical component understanding.', to: '/learn/computer-basics' },
-        { title: 'Productivity Foundations', summary: 'Applied productivity workflows and structured assessments.', to: '/assessment/pre-test' },
+        { title: 'Computer Essentials', summary: 'Master fundamental computing concepts. Learn about hardware components, file management, and device operations.', to: '/learn/intro-computers' },
+        { title: 'Online Essentials', summary: 'Navigate the internet safely and effectively. Build skills in web browsing, online communication, and digital citizenship.', to: '/learn/internet-basics' },
+        { title: 'Professional Development', summary: 'Enhance your workplace readiness with digital literacy and practical computing skills aligned to industry standards.', to: '/assessment/pre-test' },
     ];
 
     return (
@@ -23,10 +23,10 @@ export default function ExplorePage() {
                     <h2>Find your next learning focus</h2>
                     <p>Browse curated tracks and jump directly into modules aligned to your current learning signals.</p>
                 </div>
-                <NavLink to="/learn/computer-basics" className="btn btn-primary">Open Learning Canvas</NavLink>
+                <NavLink to="/learn/intro-computers" className="btn btn-primary">Open Learning Canvas</NavLink>
             </section>
 
-            <SectionHeader eyebrow="Curated Tracks" title="Recommended based on your momentum" />
+            <SectionHeader eyebrow="Learning Paths" title="ICDL-Aligned Training Modules" />
             <div className="fx-grid fx-grid-3">
                 {tracks.map((track, index) => (
                     <article key={track.title} className={`fx-card ${index === 0 ? 'feature' : ''}`}>

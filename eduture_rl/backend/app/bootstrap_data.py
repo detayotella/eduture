@@ -7,9 +7,11 @@ from .config import get_settings
 from .database import SessionLocal, engine
 from .models import ContentFragment, Learner
 from .sample_data import seed_content_rows
+from .utils.database import wait_for_database
 
 
 def _ensure_avatar_column() -> None:
+    wait_for_database(engine)
     inspector = inspect(engine)
     if "learners" not in inspector.get_table_names():
         return
