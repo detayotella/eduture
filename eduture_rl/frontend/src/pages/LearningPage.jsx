@@ -18,10 +18,10 @@ export default function LearningPage() {
     };
     const [contentType, setContentType] = useState('theory');
 
-    // Timer states
-    const [theoryTimer, setTheoryTimer] = useState(12 * 60); // 12 minutes
-    const [activityTimer, setActivityTimer] = useState(8 * 60 + 45); // 8:45
-    const [exerciseTimer, setExerciseTimer] = useState(4 * 60 + 20); // 4:20
+    // Timer states (count up from 0)
+    const [theoryTimer, setTheoryTimer] = useState(0); // max 12 minutes
+    const [activityTimer, setActivityTimer] = useState(0); // max 8:45
+    const [exerciseTimer, setExerciseTimer] = useState(0); // max 4:20
 
     // State for interactions
     const [theoryMarkedAsRead, setTheoryMarkedAsRead] = useState(false);
@@ -33,9 +33,9 @@ export default function LearningPage() {
 
     useEffect(() => {
         setContentType('theory');
-        setTheoryTimer(12 * 60);
-        setActivityTimer(8 * 60 + 45);
-        setExerciseTimer(4 * 60 + 20);
+        setTheoryTimer(0);
+        setActivityTimer(0);
+        setExerciseTimer(0);
         setTheoryMarkedAsRead(false);
         setActivityHintShown(false);
         setSelectedOption(null);
@@ -45,15 +45,15 @@ export default function LearningPage() {
         setDragState(null);
     }, [topicId]);
 
-    // Timer countdown effect
+    // Timer count-up effect
     useEffect(() => {
         const interval = setInterval(() => {
-            if (contentType === 'theory' && theoryTimer > 0) {
-                setTheoryTimer((prev) => Math.max(0, prev - 1));
-            } else if (contentType === 'activity' && activityTimer > 0) {
-                setActivityTimer((prev) => Math.max(0, prev - 1));
-            } else if (contentType === 'exercise' && exerciseTimer > 0) {
-                setExerciseTimer((prev) => Math.max(0, prev - 1));
+            if (contentType === 'theory' && theoryTimer < 12 * 60) {
+                setTheoryTimer((prev) => Math.min(12 * 60, prev + 1));
+            } else if (contentType === 'activity' && activityTimer < 8 * 60 + 45) {
+                setActivityTimer((prev) => Math.min(8 * 60 + 45, prev + 1));
+            } else if (contentType === 'exercise' && exerciseTimer < 4 * 60 + 20) {
+                setExerciseTimer((prev) => Math.min(4 * 60 + 20, prev + 1));
             }
         }, 1000);
 
@@ -150,7 +150,7 @@ export default function LearningPage() {
                 completed: true,
                 quiz_score: 100,
                 expected_time: parseInt(content.estimated),
-                actual_time: Math.round((12 * 60 - theoryTimer) / 60),
+                actual_time: Math.round(theoryTimer / 60),
                 is_revisit: false,
                 scroll_depth: 0.9,
                 click_count: 3,
