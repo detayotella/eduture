@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Dict, List
 from collections import defaultdict
 import random
+import math
 
 import numpy as np
 
@@ -84,22 +85,51 @@ class ABTestManager:
 
 class StatisticalAnalyzer:
     @staticmethod
-    def two_sample_t_test(group1: List[float], group2: List[float]) -> Dict:
-        from scipy import stats
+    def _two_tailed_normal_p_value(z_score: float) -> float:
+        return float(math.erfc(abs(z_score) / math.sqrt(2.0)))
 
+    @staticmethod
+    def two_sample_t_test(group1: List[float], group2: List[float]) -> Dict:
         if len(group1) < 2 or len(group2) < 2:
             return {"error": "Insufficient data", "n1": len(group1), "n2": len(group2)}
-        t_stat, p_value = stats.ttest_ind(group1, group2)
-        pooled_std = np.sqrt((np.std(group1, ddof=1) ** 2 + np.std(group2, ddof=1) ** 2) / 2)
+
+        g1 = np.array(group1, dtype=float)
+        g2 = np.array(group2, dtype=float)
+        n1, n2 = len(g1), len(g2)
+        mean1, mean2 = float(np.mean(g1)), float(np.mean(g2))
+        var1, var2 = float(np.var(g1, ddof=1)), float(np.var(g2, ddof=1))
+        denom = math.sqrt((var1 / n1) + (var2 / n2))
+        if denom == 0:
+            t_stat = 0.0
+            p_value = 1.0
+        else:
+            # Welch t-statistic with a normal approximation for p-value.
+            t_stat = (mean1 - mean2) / denom
+            p_value = StatisticalAnalyzer._two_tailed_normal_p_value(t_stat)
+
+        pooled_std = np.sqrt((var1 + var2) / 2)
         cohens_d = (np.mean(group1) - np.mean(group2)) / pooled_std if pooled_std > 0 else 0.0
         return {"t_statistic": float(t_stat), "p_value": float(p_value), "cohens_d": float(cohens_d), "mean_diff": float(np.mean(group1) - np.mean(group2))}
 
     @staticmethod
     def chi_square_test(counts1: int, total1: int, counts2: int, total2: int) -> Dict:
-        from scipy.stats import chi2_contingency
-
+        if total1 <= 0 or total2 <= 0:
+            return {"error": "Insufficient data", "total1": total1, "total2": total2}
         table = [[counts1, total1 - counts1], [counts2, total2 - counts2]]
-        chi2, p_value, _, _ = chi2_contingency(table)
+        grand_total = float(total1 + total2)
+        row_totals = [float(total1), float(total2)]
+        col_totals = [float(counts1 + counts2), float((total1 - counts1) + (total2 - counts2))]
+
+        chi2 = 0.0
+        for row_idx in range(2):
+            for col_idx in range(2):
+                expected = (row_totals[row_idx] * col_totals[col_idx]) / grand_total if grand_total else 0.0
+                observed = float(table[row_idx][col_idx])
+                if expected > 0:
+                    chi2 += ((observed - expected) ** 2) / expected
+
+        # For a 2x2 contingency table, degrees of freedom is 1.
+        p_value = float(math.erfc(math.sqrt(max(chi2, 0.0) / 2.0)))
         return {"chi2": float(chi2), "p_value": float(p_value), "proportion1": counts1 / total1 if total1 else 0.0, "proportion2": counts2 / total2 if total2 else 0.0}
 
     @staticmethod
