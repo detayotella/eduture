@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 export default function AuthPage({ mode }) {
     const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function AuthPage({ mode }) {
     const isLogin = mode === 'login';
     const estimatedMinutes = isLogin ? 1 : 2;
     const localTimeLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const apiBaseUrl = api.defaults.baseURL || '/api';
     const oauthStatus = useMemo(() => new URLSearchParams(window.location.search).get('oauth'), []);
     const oauthReason = useMemo(() => new URLSearchParams(window.location.search).get('reason'), []);
 

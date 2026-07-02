@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     db_pool_size: int = 5
     db_max_overflow: int = 10
     db_pool_recycle_seconds: int = 1800
-    trusted_hosts: list[str] = ["localhost", "127.0.0.1"]
+    trusted_hosts: list[str] = ["localhost", "127.0.0.1", "*.vercel.app"]
     security_headers_enabled: bool = True
     audit_log_enabled: bool = True
     log_level: str = "INFO"
