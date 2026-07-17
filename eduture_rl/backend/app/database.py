@@ -1,15 +1,27 @@
 from __future__ import annotations
 
+from urllib.parse import urlsplit, urlunsplit
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from .config import get_settings
 
 settings = get_settings()
-connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+
+
+def normalize_database_url(database_url: str) -> str:
+    if database_url.startswith(("postgres://", "postgresql://")) and "+" not in database_url.split("://", 1)[0]:
+        parts = urlsplit(database_url)
+        return urlunsplit(("postgresql+psycopg", parts.netloc, parts.path, parts.query, parts.fragment))
+    return database_url
+
+
+database_url = normalize_database_url(settings.database_url)
+connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
 
 engine_kwargs: dict = {"future": True, "connect_args": connect_args}
-if not settings.database_url.startswith("sqlite"):
+if not database_url.startswith("sqlite"):
     engine_kwargs.update(
         {
             "pool_pre_ping": True,
@@ -19,7 +31,7 @@ if not settings.database_url.startswith("sqlite"):
         }
     )
 
-engine = create_engine(settings.database_url, **engine_kwargs)
+engine = create_engine(database_url, **engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
 
 
