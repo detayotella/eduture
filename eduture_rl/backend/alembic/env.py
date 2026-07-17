@@ -1,7 +1,7 @@
+from __future__ import annotations
+
 import os
 from sqlalchemy import create_engine
-
-from __future__ import annotations
 
 from logging.config import fileConfig
 
