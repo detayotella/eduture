@@ -12,7 +12,12 @@ DEFAULT_BANDIT_STATE_PATH = Path(__file__).resolve().parent.parent / "var" / "ba
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        enable_decoding=False,
+    )
 
     app_name: str = "EDUTURE 2.0"
     api_v1_prefix: str = "/api"
