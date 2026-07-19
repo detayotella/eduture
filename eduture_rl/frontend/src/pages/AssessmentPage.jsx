@@ -37,6 +37,7 @@ export default function AssessmentPage() {
     const [selected, setSelected] = useState({});
     const [flagged, setFlagged] = useState({});
     const [submitting, setSubmitting] = useState(false);
+    const [satisfactionRating, setSatisfactionRating] = useState(null);
     const assessmentDurationSeconds = 25 * 60;
     const [remainingSeconds, setRemainingSeconds] = useState(assessmentDurationSeconds);
 
@@ -79,14 +80,14 @@ export default function AssessmentPage() {
                 score: finalScore,
                 responses: selected,
                 completion_time_minutes: elapsedMinutes,
-                satisfaction_rating: 4,
+                satisfaction_rating: satisfactionRating ?? 3,
             });
 
             navigate('/dashboard');
         } finally {
             setSubmitting(false);
         }
-    }, [assessmentDurationSeconds, navigate, remainingSeconds, routeType, selected, totalQuestions, user]);
+    }, [assessmentDurationSeconds, navigate, remainingSeconds, routeType, satisfactionRating, selected, totalQuestions, user]);
 
     useEffect(() => {
         if (!hasStarted || submitting || remainingSeconds > 0) {
@@ -261,6 +262,28 @@ export default function AssessmentPage() {
                         {currentIndex === totalQuestions - 1 ? (submitting ? 'Submitting...' : 'Complete Topic') : 'Next'}
                         <span className="material-symbols-outlined">{currentIndex === totalQuestions - 1 ? 'check' : 'arrow_forward'}</span>
                     </button>
+                </div>
+
+                <div style={{ marginTop: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>Satisfaction:</span>
+                    {[1, 2, 3, 4, 5].map((value) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => setSatisfactionRating(value)}
+                            style={{
+                                border: '1px solid var(--line)',
+                                background: satisfactionRating === value ? 'var(--primary)' : '#fff',
+                                color: satisfactionRating === value ? '#fff' : 'var(--text)',
+                                borderRadius: 999,
+                                padding: '4px 10px',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                            }}
+                        >
+                            {value}
+                        </button>
+                    ))}
                 </div>
 
                 <div className="asm-status-grid">

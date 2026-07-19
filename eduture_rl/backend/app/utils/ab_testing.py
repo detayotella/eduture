@@ -112,25 +112,87 @@ class StatisticalAnalyzer:
         return {"t_statistic": float(t_stat), "p_value": float(p_value), "cohens_d": float(cohens_d), "mean_diff": float(np.mean(group1) - np.mean(group2))}
 
     @staticmethod
+    def _fisher_exact_2x2(a: int, b: int, c: int, d: int) -> dict[str, float]:
+        n = a + b + c + d
+        row1 = a + b
+        row2 = c + d
+        col1 = a + c
+
+        if n <= 0:
+            return {"p_value": 1.0, "odds_ratio": 0.0}
+
+        def hypergeom_prob(x: int) -> float:
+            return (
+                math.comb(row1, x) * math.comb(row2, col1 - x) / math.comb(n, col1)
+            )
+
+        min_x = max(0, col1 - row2)
+        max_x = min(row1, col1)
+        observed_p = hypergeom_prob(a)
+
+        two_sided_p = 0.0
+        eps = 1e-12
+        for x in range(min_x, max_x + 1):
+            p = hypergeom_prob(x)
+            if p <= observed_p + eps:
+                two_sided_p += p
+
+        odds_ratio = float("inf") if (b * c) == 0 and (a * d) > 0 else ((a * d) / (b * c) if (b * c) != 0 else 0.0)
+        return {"p_value": float(min(1.0, two_sided_p)), "odds_ratio": float(odds_ratio) if math.isfinite(odds_ratio) else float("inf")}
+
+    @staticmethod
     def chi_square_test(counts1: int, total1: int, counts2: int, total2: int) -> Dict:
         if total1 <= 0 or total2 <= 0:
             return {"error": "Insufficient data", "total1": total1, "total2": total2}
-        table = [[counts1, total1 - counts1], [counts2, total2 - counts2]]
+
+        a = int(counts1)
+        b = int(total1 - counts1)
+        c = int(counts2)
+        d = int(total2 - counts2)
+
         grand_total = float(total1 + total2)
         row_totals = [float(total1), float(total2)]
         col_totals = [float(counts1 + counts2), float((total1 - counts1) + (total2 - counts2))]
 
+        expected = []
+        for row_idx in range(2):
+            for col_idx in range(2):
+                exp = (row_totals[row_idx] * col_totals[col_idx]) / grand_total if grand_total else 0.0
+                expected.append(exp)
+
+        use_fisher = any(exp < 5.0 for exp in expected)
+
+        if use_fisher:
+            fisher = StatisticalAnalyzer._fisher_exact_2x2(a, b, c, d)
+            return {
+                "method": "fisher_exact",
+                "chi2": None,
+                "p_value": fisher["p_value"],
+                "odds_ratio": fisher["odds_ratio"],
+                "proportion1": counts1 / total1 if total1 else 0.0,
+                "proportion2": counts2 / total2 if total2 else 0.0,
+                "absolute_lift": (counts2 / total2) - (counts1 / total1) if total1 and total2 else 0.0,
+            }
+
+        table = [[a, b], [c, d]]
         chi2 = 0.0
         for row_idx in range(2):
             for col_idx in range(2):
-                expected = (row_totals[row_idx] * col_totals[col_idx]) / grand_total if grand_total else 0.0
-                observed = float(table[row_idx][col_idx])
-                if expected > 0:
-                    chi2 += ((observed - expected) ** 2) / expected
+                exp = (row_totals[row_idx] * col_totals[col_idx]) / grand_total if grand_total else 0.0
+                obs = float(table[row_idx][col_idx])
+                if exp > 0:
+                    chi2 += ((obs - exp) ** 2) / exp
 
         # For a 2x2 contingency table, degrees of freedom is 1.
         p_value = float(math.erfc(math.sqrt(max(chi2, 0.0) / 2.0)))
-        return {"chi2": float(chi2), "p_value": float(p_value), "proportion1": counts1 / total1 if total1 else 0.0, "proportion2": counts2 / total2 if total2 else 0.0}
+        return {
+            "method": "chi_square",
+            "chi2": float(chi2),
+            "p_value": float(p_value),
+            "proportion1": counts1 / total1 if total1 else 0.0,
+            "proportion2": counts2 / total2 if total2 else 0.0,
+            "absolute_lift": (counts2 / total2) - (counts1 / total1) if total1 and total2 else 0.0,
+        }
 
     @staticmethod
     def compare_groups(metrics: List[LearnerMetrics]) -> Dict:

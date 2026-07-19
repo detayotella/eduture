@@ -7,14 +7,12 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..dependencies import get_current_user
-from ..models import ABTestAssignment, Learner, LearningStyle
+from ..models import Learner, LearningStyle
 from ..sample_data import QUESTIONNAIRE_QUESTIONS
 from ..schemas import QuestionnaireSubmitRequest, ResponseEnvelope
-from ..utils.ab_testing import ABTestManager
+from ..assignment import ensure_ab_assignment
 
 router = APIRouter(prefix="/learning-style", tags=["learning-style"])
-
-ab_manager = ABTestManager()
 
 
 @router.get("/questionnaire", response_model=ResponseEnvelope)
@@ -50,12 +48,7 @@ def submit(payload: QuestionnaireSubmitRequest, current_user: Learner = Depends(
     style_row.questionnaire_responses = response_map
     db.commit()
 
-    assignment = db.query(ABTestAssignment).filter(ABTestAssignment.learner_id == learner.id).first()
-    if assignment is None:
-        assigned_group = ab_manager.assign_learner(str(learner.id), dominant_style)
-        assignment = ABTestAssignment(learner_id=learner.id, group_assignment=assigned_group, stratified_by_style=dominant_style)
-        db.add(assignment)
-        db.commit()
+    assignment = ensure_ab_assignment(db, learner.id, dominant_style=dominant_style)
 
     return ResponseEnvelope(data={"learner_id": learner.id, "dominant_style": dominant_style, "scores": style_buckets, "group_assignment": assignment.group_assignment})
 

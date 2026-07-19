@@ -10,6 +10,7 @@ from ..dependencies import get_current_user
 from ..engines.contextual_bandit import LearnerState, RewardCalculator, adaptive_engine
 from ..models import ABTestAssignment, ContentFragment, Interaction, Learner, LearningStyle
 from ..schemas import InteractionRequest, ResponseEnvelope
+from ..assignment import ensure_ab_assignment
 
 router = APIRouter(prefix="/interaction", tags=["interaction"])
 
@@ -40,6 +41,8 @@ def record_interaction(payload: InteractionRequest, request: Request, current_us
         raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "Content not found", "details": []})
 
     dominant_style = style_row.dominant_style if style_row else "activist"
+    if assignment is None and style_row is not None:
+        assignment = ensure_ab_assignment(db, current_user.id, dominant_style=dominant_style)
     state = LearnerState(
         learner_id=str(current_user.id),
         time_on_task=min(1.0, payload.actual_time / max(payload.expected_time, 1.0)),
@@ -99,6 +102,8 @@ def interaction_summary(current_user: Learner = Depends(get_current_user), db: S
         .all()
     )
 
+    style_row = db.query(LearningStyle).filter(LearningStyle.learner_id == current_user.id).first()
+
     counts_by_day: dict = {}
     for row in rows:
         day = row.timestamp.date()
@@ -127,6 +132,20 @@ def interaction_summary(current_user: Learner = Depends(get_current_user), db: S
         if valid_minutes:
             avg_minutes = int(sum(valid_minutes) / len(valid_minutes))
 
+    interaction_count = len(rows)
+    completed_count = sum(1 for row in rows if row.completed)
+    completion_rate = (completed_count / interaction_count) if interaction_count else 0.0
+
+    quiz_scores = [float(row.quiz_score) for row in rows if row.quiz_score is not None]
+    average_quiz_score = (sum(quiz_scores) / len(quiz_scores)) if quiz_scores else 0.0
+
+    if interaction_count == 0:
+        mastery_score = 0.0
+    else:
+        streak_component = min(streak_days, 14) / 14.0
+        quiz_component = max(0.0, min(1.0, average_quiz_score / 100.0))
+        mastery_score = (completion_rate * 50.0) + (quiz_component * 35.0) + (streak_component * 15.0)
+
     estimated_hours = max(4, int(round(max(avg_minutes, 30) * 24 / 60)))
     recommended_read_minutes = max(10, min(90, max(avg_minutes, 45)))
 
@@ -138,10 +157,21 @@ def interaction_summary(current_user: Learner = Depends(get_current_user), db: S
         {"title": "Peer Code Review", "scheduled_at": friday_14.isoformat() + "Z"},
     ]
 
+    next_milestone = "Complete your first learning interaction" if interaction_count == 0 else (
+        "Keep a 3-day streak to unlock milestone 1" if streak_days < 3 else "You are on track — keep going"
+    )
+
     return ResponseEnvelope(
         data={
             "streak_days": streak_days,
             "activity_density": activity_density,
+            "interaction_count": interaction_count,
+            "completed_interaction_count": completed_count,
+            "completion_rate": completion_rate,
+            "average_quiz_score": average_quiz_score,
+            "mastery_score": round(mastery_score, 2),
+            "dominant_style": style_row.dominant_style if style_row else None,
+            "next_milestone": next_milestone,
             "estimated_hours": estimated_hours,
             "recommended_read_minutes": recommended_read_minutes,
             "checkpoints": checkpoints,

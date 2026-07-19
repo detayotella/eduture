@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
-import { learningContent, getCurrentLearnerId, getModuleForTopic, getTopicsInModule } from '../constants/learningData';
+import { learningContent, getCurrentLearnerId } from '../constants/learningData';
 import { useAuth } from '../context/AuthContext';
 
 export default function LearningPage() {
     const { topicId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const content = learningContent[topicId] || learningContent['intro-computers'];
-    const activity = content.activity || {
+
+    const normalizeTopicKey = (key) => {
+        if (!key) {
+            return 'computer-basics';
+        }
+        if (learningContent[key]) {
+            return key;
+        }
+        if (key === 'intro-computers') {
+            return 'computer-basics';
+        }
+        return 'computer-basics';
+    };
+
+    const [recommendedContent, setRecommendedContent] = useState(null);
+    const localContent = learningContent[normalizeTopicKey(topicId)] || learningContent['computer-basics'];
+    const activity = localContent.activity || {
         title: 'Match the learning pieces',
         intro: 'Use drag-and-drop or click a component and then a target card.',
         hint: 'Pick the item that best fits the description.',
@@ -17,11 +32,14 @@ export default function LearningPage() {
         targets: [],
     };
     const [contentType, setContentType] = useState('theory');
+    const [activeContentId, setActiveContentId] = useState(null);
+    const [submittingComplete, setSubmittingComplete] = useState(false);
+    const [exerciseSatisfaction, setExerciseSatisfaction] = useState(null);
 
-    // Timer states (count up from 0)
-    const [theoryTimer, setTheoryTimer] = useState(0); // max 12 minutes
-    const [activityTimer, setActivityTimer] = useState(0); // max 8:45
-    const [exerciseTimer, setExerciseTimer] = useState(0); // max 4:20
+    // Timer states
+    const [theoryTimer, setTheoryTimer] = useState(12 * 60); // 12 minutes
+    const [activityTimer, setActivityTimer] = useState(8 * 60 + 45); // 8:45
+    const [exerciseTimer, setExerciseTimer] = useState(4 * 60 + 20); // 4:20
 
     // State for interactions
     const [theoryMarkedAsRead, setTheoryMarkedAsRead] = useState(false);
@@ -32,47 +50,69 @@ export default function LearningPage() {
     const [dragState, setDragState] = useState(null);
 
     useEffect(() => {
-        setContentType('theory');
-        setTheoryTimer(0);
-        setActivityTimer(0);
-        setExerciseTimer(0);
+        setTheoryTimer(12 * 60);
+        setActivityTimer(8 * 60 + 45);
+        setExerciseTimer(4 * 60 + 20);
         setTheoryMarkedAsRead(false);
         setActivityHintShown(false);
-        setSelectedOption(null);
+        setSelectedAnswers({});
         setSelectedItemId(null);
         setPlacements({});
         setActiveTargetId(null);
         setDragState(null);
-    }, [topicId]);
+        setSubmittingComplete(false);
+        setExerciseSatisfaction(null);
 
-    // Timer count-up effect
+        const learnerId = getCurrentLearnerId(user);
+        if (!learnerId) {
+            setRecommendedContent(null);
+            setActiveContentId(null);
+            setContentType('theory');
+            return;
+        }
+
+        api
+            .get('/content/recommend', {
+                params: {
+                    learner_id: learnerId,
+                    time_on_task: 0.5,
+                    error_rate: 0.2,
+                    revisit_count: 0.1,
+                    completion_rate: 0.2,
+                    engagement_score: 0.7,
+                    topic_difficulty: 0.4,
+                },
+            })
+            .then((response) => {
+                const payload = response?.data?.data || null;
+                setRecommendedContent(payload);
+                setActiveContentId(payload?.content?.id || null);
+                const nextType = payload?.recommended_content_type || payload?.content?.content_type || 'theory';
+                setContentType(nextType === 'example' ? 'theory' : nextType);
+            })
+            .catch(() => {
+                setRecommendedContent(null);
+                setActiveContentId(null);
+                setContentType('theory');
+            });
+    }, [topicId, user]);
+
+    // Timer countdown effect
     useEffect(() => {
         const interval = setInterval(() => {
-            if (contentType === 'theory' && theoryTimer < 12 * 60) {
-                setTheoryTimer((prev) => Math.min(12 * 60, prev + 1));
-            } else if (contentType === 'activity' && activityTimer < 8 * 60 + 45) {
-                setActivityTimer((prev) => Math.min(8 * 60 + 45, prev + 1));
-            } else if (contentType === 'exercise' && exerciseTimer < 4 * 60 + 20) {
-                setExerciseTimer((prev) => Math.min(4 * 60 + 20, prev + 1));
+            if (contentType === 'theory' && theoryTimer > 0) {
+                setTheoryTimer((prev) => Math.max(0, prev - 1));
+            } else if (contentType === 'activity' && activityTimer > 0) {
+                setActivityTimer((prev) => Math.max(0, prev - 1));
+            } else if (contentType === 'exercise' && exerciseTimer > 0) {
+                setExerciseTimer((prev) => Math.max(0, prev - 1));
             }
         }, 1000);
 
         return () => clearInterval(interval);
     }, [contentType, theoryTimer, activityTimer, exerciseTimer]);
 
-    const exercise = content.exercise || {
-        title: 'Knowledge Check',
-        question: 'Which of the following is an input device?',
-        options: ['Monitor', 'Printer', 'Keyboard', 'Speakers'],
-        answer: 2,
-    };
-
-    const exerciseTitle = exercise.title || 'Knowledge Check';
-    const exerciseQuestion = exercise.question || 'Which of the following is correct?';
-    const exerciseOptions = exercise.options || ['Monitor', 'Printer', 'Keyboard', 'Speakers'];
-    const correctAnswerIndex = exercise.answer || 2;
-    const correctExerciseOption = exerciseOptions[correctAnswerIndex];
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedAnswers, setSelectedAnswers] = useState({});
 
     const getItemLabel = (itemId) => activity.items.find((item) => item.id === itemId)?.label || '';
 
@@ -136,6 +176,64 @@ export default function LearningPage() {
     const selectedItemLabel = selectedItemId ? getItemLabel(selectedItemId) : null;
     const placedCount = Object.keys(placements).length;
 
+    const recommendedFragment = recommendedContent?.content || null;
+    const renderData = recommendedFragment?.render_data || null;
+
+    const renderedTitle = recommendedFragment?.title || renderData?.title || localContent.title;
+    const renderedBody = renderData?.body || recommendedFragment?.content_data || localContent.body;
+    const renderedBadge = recommendedFragment?.content_type
+        ? `${recommendedFragment.content_type.charAt(0).toUpperCase()}${recommendedFragment.content_type.slice(1)}`
+        : localContent.badge;
+    const renderedEstimated = renderData?.estimated_minutes
+        ? `${renderData.estimated_minutes} min`
+        : recommendedFragment?.estimated_time_minutes
+            ? `${recommendedFragment.estimated_time_minutes} min`
+            : localContent.estimated;
+
+    const activityData = renderData?.kind === 'task_list'
+        ? {
+            title: renderData.title || renderedTitle,
+            intro: renderData.intro || 'Follow the tasks below.',
+            hint: renderData.hint || 'Complete each task in order.',
+            tasks: Array.isArray(renderData.tasks) ? renderData.tasks : [],
+        }
+        : {
+            title: activity.title,
+            intro: activity.intro,
+            hint: activity.hint,
+            tasks: [],
+        };
+
+    const exerciseQuestions = renderData?.kind === 'quiz' && Array.isArray(renderData.questions) && renderData.questions.length > 0
+        ? renderData.questions
+        : [{
+            question: 'Which of the following is an input device?',
+            options: ['Monitor', 'Printer', 'Keyboard', 'Speakers'],
+            answer_index: 2,
+        }];
+    const answeredCount = Object.keys(selectedAnswers).length;
+    const fullyAnswered = exerciseQuestions.length > 0 && answeredCount >= exerciseQuestions.length;
+
+    const evaluatedQuestions = exerciseQuestions.map((question, index) => {
+        const selectedIndex = Object.prototype.hasOwnProperty.call(selectedAnswers, index)
+            ? selectedAnswers[index]
+            : null;
+        const correctIndex = typeof question.answer_index === 'number' ? question.answer_index : null;
+        const isCorrect = selectedIndex !== null && correctIndex !== null && selectedIndex === correctIndex;
+        return {
+            question,
+            index,
+            selectedIndex,
+            correctIndex,
+            isCorrect,
+        };
+    });
+
+    const correctCount = evaluatedQuestions.filter((entry) => entry.isCorrect).length;
+    const quizScore = exerciseQuestions.length > 0
+        ? Math.round((correctCount / exerciseQuestions.length) * 100)
+        : 0;
+
     const formatTimer = (seconds) => {
         const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
         const secs = String(seconds % 60).padStart(2, '0');
@@ -146,11 +244,11 @@ export default function LearningPage() {
         try {
             await api.post('/interaction/record', {
                 learner_id: getCurrentLearnerId(user),
-                content_id: topicId,
+                content_id: activeContentId || 1,
                 completed: true,
                 quiz_score: 100,
-                expected_time: parseInt(content.estimated),
-                actual_time: Math.round(theoryTimer / 60),
+                expected_time: 12,
+                actual_time: 12 - theoryTimer / 60,
                 is_revisit: false,
                 scroll_depth: 0.9,
                 click_count: 3,
@@ -166,37 +264,84 @@ export default function LearningPage() {
         setActivityHintShown(true);
     };
 
-    const handleNextTopic = () => {
-        if (contentType === 'theory') {
-            setContentType('activity');
-        } else if (contentType === 'activity') {
-            setContentType('exercise');
-        } else if (nextTopic) {
-            navigate(`/learn/${nextTopic.id}`);
-            setContentType('theory');
-        }
-    };
-
-    const handlePreviousTopic = () => {
-        if (contentType === 'exercise') {
-            setContentType('activity');
-        } else if (contentType === 'activity') {
-            setContentType('theory');
-        } else if (prevTopic) {
-            navigate(`/learn/${prevTopic.id}`);
-            setContentType('exercise');
-        }
-    };
-
     const progressWidth = contentType === 'theory' ? '30%' : contentType === 'activity' ? '65%' : '90%';
     const timerText = contentType === 'theory' ? formatTimer(theoryTimer) : contentType === 'activity' ? formatTimer(activityTimer) : formatTimer(exerciseTimer);
-    const moduleLabel = contentType === 'theory' ? 'Computer Essentials' : contentType === 'activity' ? 'Hardware Essentials' : 'Hardware Basics';
+    const moduleLabel = renderedTitle;
 
-    const currentModule = getModuleForTopic(topicId);
-    const availableTopics = getTopicsInModule(currentModule);
-    const currentTopicIndex = availableTopics.findIndex(t => t.id === topicId);
-    const nextTopic = currentTopicIndex < availableTopics.length - 1 ? availableTopics[currentTopicIndex + 1] : null;
-    const prevTopic = currentTopicIndex > 0 ? availableTopics[currentTopicIndex - 1] : null;
+    const goPrevious = () => {
+        if (contentType === 'exercise') {
+            setContentType('activity');
+            return;
+        }
+        if (contentType === 'activity') {
+            setContentType('theory');
+            return;
+        }
+        navigate('/dashboard');
+    };
+
+    const goNext = () => {
+        if (contentType === 'theory') {
+            setContentType('activity');
+            return;
+        }
+        if (contentType === 'activity') {
+            setContentType('exercise');
+            return;
+        }
+        navigate('/assessment/post-test');
+    };
+
+    const completeTopic = async () => {
+        if (submittingComplete) {
+            return;
+        }
+        setSubmittingComplete(true);
+        try {
+            const responses = {};
+            evaluatedQuestions.forEach(({ question, index, selectedIndex, correctIndex, isCorrect }) => {
+                const options = Array.isArray(question.options) ? question.options : [];
+                responses[`q${index + 1}`] = {
+                    question: question.question,
+                    options,
+                    selected_index: selectedIndex,
+                    selected_option: selectedIndex !== null ? options[selectedIndex] || null : null,
+                    correct_index: correctIndex,
+                    correct_option: correctIndex !== null ? options[correctIndex] || null : null,
+                    is_correct: isCorrect,
+                };
+            });
+
+            await api.post('/interaction/record', {
+                learner_id: getCurrentLearnerId(user),
+                content_id: activeContentId || 1,
+                completed: fullyAnswered,
+                quiz_score: quizScore,
+                expected_time: 5,
+                actual_time: Math.max(1, (4 * 60 + 20 - exerciseTimer) / 60),
+                is_revisit: false,
+                scroll_depth: Math.max(0.2, Math.min(1, answeredCount / Math.max(1, exerciseQuestions.length))),
+                click_count: Math.max(1, answeredCount),
+            });
+
+            await api.post('/assessment/exercise', {
+                learner_id: getCurrentLearnerId(user),
+                module_id: recommendedFragment?.module_id || 'icdl-computer-essentials',
+                content_id: activeContentId || null,
+                score: quizScore,
+                responses,
+                completion_time_minutes: Math.max(1, Math.round((4 * 60 + 20 - exerciseTimer) / 60)),
+                satisfaction_rating: exerciseSatisfaction ?? 3,
+            });
+
+            navigate('/assessment/post-test');
+        } catch (error) {
+            console.error('Error completing topic:', error);
+            navigate('/assessment/post-test');
+        } finally {
+            setSubmittingComplete(false);
+        }
+    };
 
     return (
         <div className="lx-shell">
@@ -216,30 +361,6 @@ export default function LearningPage() {
                 </div>
             </header>
 
-            <div className="lx-topic-progress">
-                <div className="lx-topic-progress-track">
-                    {availableTopics.map((topic, idx) => (
-                        <div key={topic.id} className="lx-progress-segment">
-                            <button
-                                className={`lx-progress-dot ${topicId === topic.id ? 'active' : ''}`}
-                                type="button"
-                                onClick={() => navigate(`/learn/${topic.id}`)}
-                                title={topic.title}
-                            >
-                                <span className="lx-dot-number">{idx + 1}</span>
-                            </button>
-                            {idx < availableTopics.length - 1 && (
-                                <div className="lx-progress-line" />
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <div className="lx-progress-title">
-                    <h2>{availableTopics[currentTopicIndex]?.title}</h2>
-                    <p className="lx-progress-meta">{currentTopicIndex + 1} of {availableTopics.length}</p>
-                </div>
-            </div>
-
             <main className="lx-main">
                 <div className="lx-tabs" role="tablist" aria-label="Learning mode">
                     {['theory', 'activity', 'exercise'].map((item) => (
@@ -258,22 +379,22 @@ export default function LearningPage() {
                     <section className="lx-section">
                         <div className="lx-chip lx-chip-theory">
                             <span className="lx-chip-dot" />
-                            <span>{content.badge}</span>
+                            <span>{renderedBadge}</span>
                         </div>
-                        <h1 className="lx-title">{content.title}</h1>
+                        <h1 className="lx-title">{renderedTitle}</h1>
 
                         <article className="lx-article">
-                            <p>{content.body}</p>
+                            <p style={{ whiteSpace: 'pre-wrap' }}>{renderedBody}</p>
 
                             <div className="lx-callout">
                                 <div className="lx-callout-bar" />
                                 <div className="lx-callout-inner">
                                     <span className="material-symbols-outlined">lightbulb</span>
-                                    <p>{content.callout}</p>
+                                    <p>{localContent.callout}</p>
                                 </div>
                             </div>
 
-                            <p>{content.activity?.intro || 'This module includes an interactive activity to reinforce the lesson.'}</p>
+                            <p>{localContent.activity?.intro || 'This module includes an interactive activity to reinforce the lesson.'}</p>
 
                             <div className="lx-cta-row">
                                 <button
@@ -296,97 +417,112 @@ export default function LearningPage() {
                             <span className="material-symbols-outlined">my_location</span>
                             <span>Activity</span>
                         </div>
-                        <h1 className="lx-title">{activity.title}</h1>
+                        <h1 className="lx-title">{activityData.title || renderedTitle}</h1>
 
                         <div className="lx-info-box">
                             <span className="material-symbols-outlined">info</span>
                             <div>
-                                <p>{activity.intro}</p>
-                                <p className="lx-info-box-meta">
-                                    {placedCount}/{activity.targets.length} placed{selectedItemLabel ? ` · Selected: ${selectedItemLabel}` : ''}
-                                </p>
+                                <p>{activityData.intro}</p>
+                                {activityData.tasks.length === 0 ? (
+                                    <p className="lx-info-box-meta">
+                                        {placedCount}/{activity.targets.length} placed{selectedItemLabel ? ` · Selected: ${selectedItemLabel}` : ''}
+                                    </p>
+                                ) : null}
                             </div>
                         </div>
 
-                        <div className="lx-activity-grid">
-                            <div className="lx-column">
-                                <h3>Components</h3>
-                                {availableItems.map((item) => (
-                                    <button
-                                        key={item.id}
-                                        className={`lx-draggable ${selectedItemId === item.id ? 'lx-draggable-selected' : ''}`}
-                                        type="button"
-                                        draggable
-                                        onDragStart={handleDragStart(item.id)}
-                                        onDragEnd={handleDragEnd}
-                                        onClick={() => setSelectedItemId(item.id)}
-                                    >
-                                        <span>{item.label}</span>
-                                        <span className="material-symbols-outlined">drag_indicator</span>
-                                    </button>
-                                ))}
-                                {availableItems.length === 0 ? <div className="lx-complete-note">All components placed. Try moving one to another target.</div> : null}
-                            </div>
-
-                            <div className="lx-column lx-column-targets">
-                                <h3>Descriptions</h3>
-                                {activity.targets.map((target) => {
-                                    const placedItemId = getPlacedItemForTarget(target.id);
-                                    const placedItemLabel = placedItemId ? getItemLabel(placedItemId) : '';
-                                    const isCorrect = placedItemId ? isTargetCorrect(target.id, placedItemId) : false;
-                                    return (
-                                        <div
-                                            key={target.id}
-                                            className={`lx-target lx-target-drop ${activeTargetId === target.id ? 'is-hover' : ''} ${placedItemId ? 'lx-target-filled' : ''} ${isCorrect ? 'is-correct' : ''}`}
-                                            role="button"
-                                            tabIndex={0}
-                                            onDragOver={(event) => {
-                                                event.preventDefault();
-                                                setActiveTargetId(target.id);
-                                            }}
-                                            onDragLeave={() => setActiveTargetId(null)}
-                                            onDrop={(event) => {
-                                                event.preventDefault();
-                                                placeItemInTarget(dragState?.itemId || selectedItemId, target.id, dragState?.sourceTargetId || null);
-                                                setActiveTargetId(null);
-                                            }}
-                                            onClick={() => placeItemInTarget(selectedItemId, target.id, dragState?.sourceTargetId || null)}
-                                        >
-                                            {isCorrect ? (
-                                                <div className="lx-target-badge"><span className="material-symbols-outlined">check</span></div>
-                                            ) : null}
-                                            <div className="lx-target-head">
-                                                <div className="lx-token">{target.label}</div>
-                                                <p>{target.description}</p>
-                                            </div>
-                                            <div className="lx-target-slot">
-                                                {placedItemId ? (
-                                                    <div
-                                                        className="lx-token lx-token-placed"
-                                                        draggable
-                                                        onDragStart={handleDragStart(placedItemId, target.id)}
-                                                        onDragEnd={handleDragEnd}
-                                                        onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            setSelectedItemId(placedItemId);
-                                                        }}
-                                                    >
-                                                        <span>{placedItemLabel}</span>
-                                                        <span className="material-symbols-outlined">drag_indicator</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className="lx-token lx-token-empty" aria-hidden="true" />
-                                                )}
-                                            </div>
+                        {activityData.tasks.length > 0 ? (
+                            <div className="lx-options">
+                                {activityData.tasks.map((task, index) => (
+                                    <div key={`${task}-${index}`} className="lx-option-group">
+                                        <div className="lx-option is-selected">
+                                            <span className="material-symbols-outlined">task_alt</span>
+                                            <span className="lx-option-text">{task}</span>
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
                             </div>
-                        </div>
+                        ) : (
+                            <div className="lx-activity-grid">
+                                <div className="lx-column">
+                                    <h3>Components</h3>
+                                    {availableItems.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            className={`lx-draggable ${selectedItemId === item.id ? 'lx-draggable-selected' : ''}`}
+                                            type="button"
+                                            draggable
+                                            onDragStart={handleDragStart(item.id)}
+                                            onDragEnd={handleDragEnd}
+                                            onClick={() => setSelectedItemId(item.id)}
+                                        >
+                                            <span>{item.label}</span>
+                                            <span className="material-symbols-outlined">drag_indicator</span>
+                                        </button>
+                                    ))}
+                                    {availableItems.length === 0 ? <div className="lx-complete-note">All components placed. Try moving one to another target.</div> : null}
+                                </div>
+
+                                <div className="lx-column lx-column-targets">
+                                    <h3>Descriptions</h3>
+                                    {activity.targets.map((target) => {
+                                        const placedItemId = getPlacedItemForTarget(target.id);
+                                        const placedItemLabel = placedItemId ? getItemLabel(placedItemId) : '';
+                                        const isCorrect = placedItemId ? isTargetCorrect(target.id, placedItemId) : false;
+                                        return (
+                                            <div
+                                                key={target.id}
+                                                className={`lx-target lx-target-drop ${activeTargetId === target.id ? 'is-hover' : ''} ${placedItemId ? 'lx-target-filled' : ''} ${isCorrect ? 'is-correct' : ''}`}
+                                                role="button"
+                                                tabIndex={0}
+                                                onDragOver={(event) => {
+                                                    event.preventDefault();
+                                                    setActiveTargetId(target.id);
+                                                }}
+                                                onDragLeave={() => setActiveTargetId(null)}
+                                                onDrop={(event) => {
+                                                    event.preventDefault();
+                                                    placeItemInTarget(dragState?.itemId || selectedItemId, target.id, dragState?.sourceTargetId || null);
+                                                    setActiveTargetId(null);
+                                                }}
+                                                onClick={() => placeItemInTarget(selectedItemId, target.id, dragState?.sourceTargetId || null)}
+                                            >
+                                                {isCorrect ? (
+                                                    <div className="lx-target-badge"><span className="material-symbols-outlined">check</span></div>
+                                                ) : null}
+                                                <div className="lx-target-head">
+                                                    <div className="lx-token">{target.label}</div>
+                                                    <p>{target.description}</p>
+                                                </div>
+                                                <div className="lx-target-slot">
+                                                    {placedItemId ? (
+                                                        <div
+                                                            className="lx-token lx-token-placed"
+                                                            draggable
+                                                            onDragStart={handleDragStart(placedItemId, target.id)}
+                                                            onDragEnd={handleDragEnd}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                setSelectedItemId(placedItemId);
+                                                            }}
+                                                        >
+                                                            <span>{placedItemLabel}</span>
+                                                            <span className="material-symbols-outlined">drag_indicator</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="lx-token lx-token-empty" aria-hidden="true" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         <button className="lx-hint" type="button" onClick={handleNeedHint}>
                             <span className="material-symbols-outlined">lightbulb</span>
-                            {activityHintShown ? activity.hint : selectedItemLabel ? 'Click a description to place the selected component.' : 'Need a hint? Select or drag a component first.'}
+                            {activityHintShown ? activityData.hint : selectedItemLabel ? 'Click a description to place the selected component.' : 'Need a hint? Select or drag a component first.'}
                         </button>
                     </section>
                 ) : null}
@@ -397,32 +533,61 @@ export default function LearningPage() {
                             <span>✏️</span>
                             <span>Exercise</span>
                         </div>
-                        <h1 className="lx-title lx-title-sm">{exerciseTitle}</h1>
-                        <p className="lx-subtitle">{exerciseQuestion}</p>
+                        <h1 className="lx-title lx-title-sm">Knowledge Check</h1>
+                        <p className="lx-subtitle">Answer all questions before completing this topic.</p>
+
+                        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.84rem', color: 'var(--muted)' }}>Satisfaction:</span>
+                            {[1, 2, 3, 4, 5].map((value) => (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => setExerciseSatisfaction(value)}
+                                    style={{
+                                        border: '1px solid var(--line)',
+                                        background: exerciseSatisfaction === value ? 'var(--primary)' : '#fff',
+                                        color: exerciseSatisfaction === value ? '#fff' : 'var(--text)',
+                                        borderRadius: 999,
+                                        padding: '4px 10px',
+                                        cursor: 'pointer',
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {value}
+                                </button>
+                            ))}
+                        </div>
 
                         <div className="lx-options">
-                            {exerciseOptions.map((option) => {
-                                const isSelected = option === selectedOption;
-                                const isCorrect = option === correctExerciseOption;
-                                const isWrongSelection = isSelected && !isCorrect;
+                            {evaluatedQuestions.map(({ question, index, selectedIndex, correctIndex, isCorrect }) => {
+                                const options = Array.isArray(question.options) ? question.options : [];
                                 return (
-                                    <div key={option} className="lx-option-group">
-                                        <button
-                                            className={`lx-option ${isSelected ? 'is-selected' : ''} ${isSelected && isCorrect ? 'is-correct' : ''} ${isWrongSelection ? 'is-wrong' : ''}`}
-                                            type="button"
-                                            onClick={() => setSelectedOption(option)}
-                                        >
-                                            <span className="material-symbols-outlined">{isSelected ? 'radio_button_checked' : 'radio_button_unchecked'}</span>
-                                            <span className="lx-option-text">{option}</span>
-                                            {isSelected ? <span className="material-symbols-outlined lx-option-ok">{isCorrect ? 'check_circle' : 'cancel'}</span> : null}
-                                        </button>
-                                        {isSelected ? (
+                                    <div key={`${question.question}-${index}`} className="lx-option-group">
+                                        <p className="lx-subtitle" style={{ marginBottom: 10 }}>{question.question}</p>
+                                        {options.map((option, optionIndex) => {
+                                            const isSelected = selectedIndex === optionIndex;
+                                            const isWrongSelection = isSelected && correctIndex !== null && optionIndex !== correctIndex;
+                                            return (
+                                                <button
+                                                    key={`${option}-${optionIndex}`}
+                                                    className={`lx-option ${isSelected ? 'is-selected' : ''} ${isSelected && isCorrect ? 'is-correct' : ''} ${isWrongSelection ? 'is-wrong' : ''}`}
+                                                    type="button"
+                                                    onClick={() => setSelectedAnswers((prev) => ({ ...prev, [index]: optionIndex }))}
+                                                >
+                                                    <span className="material-symbols-outlined">{isSelected ? 'radio_button_checked' : 'radio_button_unchecked'}</span>
+                                                    <span className="lx-option-text">{option}</span>
+                                                    {isSelected ? <span className="material-symbols-outlined lx-option-ok">{isCorrect ? 'check_circle' : 'cancel'}</span> : null}
+                                                </button>
+                                            );
+                                        })}
+
+                                        {selectedIndex !== null ? (
                                             <div className={`lx-feedback ${isCorrect ? 'is-correct' : 'is-wrong'}`}>
                                                 <strong>{isCorrect ? 'Great job!' : 'Almost there'}</strong>
                                                 <p>
                                                     {isCorrect
-                                                        ? 'A keyboard is used to input text and commands into the computer, making it a primary input device.'
-                                                        : 'That choice is an output device. Try again and pick the option used for entering text and commands.'}
+                                                        ? 'Correct response recorded. Great job.'
+                                                        : 'Not quite. Try again and choose the best option from the lesson content.'}
                                                 </p>
                                             </div>
                                         ) : null}
@@ -436,25 +601,25 @@ export default function LearningPage() {
 
             <footer className="lx-footer">
                 <div className="lx-footer-inner">
-                    <button className="lx-footer-btn secondary" type="button" onClick={handlePreviousTopic}>Previous</button>
+                    <button className="lx-footer-btn secondary" type="button" onClick={goPrevious}>Previous</button>
                     {contentType === 'exercise' ? (
-                        <button className="lx-footer-btn primary" type="button" onClick={() => alert('Topic completed! Well done.')}>
-                            Complete Topic
+                        <button className="lx-footer-btn primary" type="button" onClick={completeTopic} disabled={submittingComplete || !fullyAnswered || exerciseSatisfaction === null}>
+                            {submittingComplete ? 'Completing...' : `Complete Topic (${answeredCount}/${exerciseQuestions.length})`}
                             <span className="material-symbols-outlined">check</span>
                         </button>
                     ) : (
-                        <button className="lx-footer-btn primary" type="button" onClick={handleNextTopic}>
+                        <button className="lx-footer-btn primary" type="button" onClick={goNext}>
                             {contentType === 'theory' ? 'Next Topic' : 'Next'}
                             <span className="material-symbols-outlined">arrow_forward</span>
                         </button>
                     )}
                 </div>
-                {contentType === 'theory' ? <div className="lx-footer-inline-note">Est. {content.estimated}</div> : null}
+                {contentType === 'theory' ? <div className="lx-footer-inline-note">Est. {renderedEstimated}</div> : null}
             </footer>
 
             {contentType === 'theory' ? (
                 <div className="lx-mobile-next">
-                    <button className="lx-mobile-next-btn" type="button">
+                    <button className="lx-mobile-next-btn" type="button" onClick={goNext}>
                         <div>
                             <div className="lx-mobile-next-kicker">Up Next</div>
                             <div>Practical Disruption</div>

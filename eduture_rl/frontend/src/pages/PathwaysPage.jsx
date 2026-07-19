@@ -1,51 +1,55 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import DashboardShell from '../components/layout/DashboardShell';
-import { Pill, SectionHeader } from '../components/ui/Cards';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import DashboardShell from "../components/layout/DashboardShell";
+import { Pill, SectionHeader } from "../components/ui/Cards";
 
 const pathwayItems = [
-    { name: 'Computer Essentials', state: 'In progress', completion: 68 },
-    { name: 'Online Essentials', state: 'Queued', completion: 0 },
-    { name: 'Digital Citizenship', state: 'Locked', completion: 0 },
+  { name: "Computer Essentials", state: "In progress", completion: 68 },
+  { name: "Online Essentials", state: "Queued", completion: 0 },
+  { name: "Digital Citizenship", state: "Locked", completion: 0 },
 ];
 
 export default function PathwaysPage() {
-    return (
-        <DashboardShell>
-            <header className="db-header">
-                <h1>Pathways</h1>
-                <p>Learning sequence</p>
-            </header>
+  return (
+    <DashboardShell>
+      <header className="db-header">
+        <h1>Pathways</h1>
+        <p>Learning sequence</p>
+      </header>
 
-            <section className="fx-hero fx-hero-pathways">
-                <div>
-                    <div className="fx-kicker">Pathways</div>
-                    <h2>Your progression map</h2>
-                    <p>These pathways are ordered by readiness and projected impact on mastery progression.</p>
-                </div>
-            </section>
+      <section className="fx-hero fx-hero-pathways">
+        <div>
+          <div className="fx-kicker">Pathways</div>
+          <h2>Your progression map</h2>
+          <p>
+            These pathways are ordered by readiness and projected impact on
+            mastery progression.
+          </p>
+        </div>
+      </section>
 
-            <SectionHeader
-                eyebrow="Trajectory"
-                title="What to tackle next"
-            />
-            <div className="fx-pathway-list">
-                {pathwayItems.map((item) => (
-                    <article key={item.name} className="fx-pathway-item">
-                        <div>
-                            <div className="fx-pathway-title">{item.name}</div>
-                            <div className="fx-pathway-state">{item.state}</div>
-                        </div>
-                        <div className="fx-pathway-progress-wrap">
-                            <div className="progress-track"><span style={{ width: `${item.completion}%` }} /></div>
-                        </div>
-                    </article>
-                ))}
+      <SectionHeader eyebrow="Trajectory" title="What to tackle next" />
+      <div className="fx-pathway-list">
+        {pathwayItems.map((item) => (
+          <article key={item.name} className="fx-pathway-item">
+            <div>
+              <div className="fx-pathway-title">{item.name}</div>
+              <div className="fx-pathway-state">{item.state}</div>
             </div>
-
-            <div className="fx-actions-row">
-                <NavLink to="/learn/intro-computers" className="btn btn-primary">Continue active pathway</NavLink>
+            <div className="fx-pathway-progress-wrap">
+              <div className="progress-track">
+                <span style={{ width: `${item.completion}%` }} />
+              </div>
             </div>
-        </DashboardShell>
-    );
+          </article>
+        ))}
+      </div>
+
+      <div className="fx-actions-row">
+        <NavLink to="/learn/computer-basics" className="btn btn-primary">
+          Continue active pathway
+        </NavLink>
+      </div>
+    </DashboardShell>
+  );
 }

@@ -9,6 +9,8 @@ from ..models import ABTestAssignment, ContentFragment, Learner, LearningStyle
 from ..sample_data import MODULE_SUMMARIES
 from ..schemas import RecommendationRequest, ResponseEnvelope
 from ..engines.contextual_bandit import AdaptiveEngine, LearnerState, adaptive_engine
+from ..content_render import build_render_data
+from ..assignment import ensure_ab_assignment
 
 router = APIRouter(prefix="/content", tags=["content"])
 rule_engine = AdaptiveEngine(mode="rule")
@@ -28,10 +30,7 @@ def recommend(payload: RecommendationRequest = Depends(), current_user: Learner 
     dominant_style = style_row.dominant_style if style_row else "activist"
     assignment = db.query(ABTestAssignment).filter(ABTestAssignment.learner_id == current_user.id).first()
     if assignment is None and style_row is not None:
-        assignment = ABTestAssignment(learner_id=current_user.id, group_assignment="rule_based", stratified_by_style=dominant_style)
-        db.add(assignment)
-        db.commit()
-        db.refresh(assignment)
+        assignment = ensure_ab_assignment(db, current_user.id, dominant_style=dominant_style)
 
     learner_state = LearnerState(
         learner_id=str(current_user.id),
@@ -52,7 +51,7 @@ def recommend(payload: RecommendationRequest = Depends(), current_user: Learner 
     engine_source = "rl" if assignment and assignment.group_assignment == "rl_based" else "rule"
     return ResponseEnvelope(
         data={
-            "group": assignment.group_assignment if assignment else "rule_based",
+            "group": assignment.group_assignment if assignment else "unassigned",
             "engine_source": engine_source,
             "is_rl_assignment": engine_source == "rl",
             "recommended_content_type": content_type,
@@ -65,6 +64,7 @@ def recommend(payload: RecommendationRequest = Depends(), current_user: Learner 
                 "sequence_order": fragment.sequence_order,
                 "title": fragment.title,
                 "content_data": fragment.content_data,
+                "render_data": build_render_data(fragment),
                 "difficulty": fragment.difficulty,
                 "estimated_time_minutes": fragment.estimated_time_minutes,
             },
@@ -81,7 +81,7 @@ def recommendation_status(current_user: Learner = Depends(get_current_user), db:
         data={
             "learner_id": current_user.id,
             "dominant_style": style_row.dominant_style if style_row else None,
-            "assignment_group": assignment.group_assignment if assignment else "rule_based",
+            "assignment_group": assignment.group_assignment if assignment else "unassigned",
             "engine_source": engine_source,
             "is_rl_assignment": engine_source == "rl",
             "last_route": adaptive_engine.get_learner_route(str(current_user.id)),
@@ -103,6 +103,7 @@ def content(content_id: int, db: Session = Depends(get_db)):
             "sequence_order": fragment.sequence_order,
             "title": fragment.title,
             "content_data": fragment.content_data,
+            "render_data": build_render_data(fragment),
             "difficulty": fragment.difficulty,
             "estimated_time_minutes": fragment.estimated_time_minutes,
         }

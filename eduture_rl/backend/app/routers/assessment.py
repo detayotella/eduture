@@ -79,3 +79,11 @@ def post_test(payload: AssessmentRequest, current_user=Depends(get_current_user)
         raise HTTPException(status_code=403, detail={"code": "AUTHORIZATION_ERROR", "message": "Cannot submit for another learner", "details": []})
     result = _store_assessment(current_user, payload, "post_test", db)
     return ResponseEnvelope(data={"assessment_id": result.id, "assessment_type": result.assessment_type, "score": result.score, "passed": result.passed})
+
+
+@router.post("/exercise", response_model=ResponseEnvelope)
+def exercise(payload: AssessmentRequest, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+    if payload.learner_id != current_user.id:
+        raise HTTPException(status_code=403, detail={"code": "AUTHORIZATION_ERROR", "message": "Cannot submit for another learner", "details": []})
+    result = _store_assessment(current_user, payload, "exercise", db)
+    return ResponseEnvelope(data={"assessment_id": result.id, "assessment_type": result.assessment_type, "score": result.score, "passed": result.passed})

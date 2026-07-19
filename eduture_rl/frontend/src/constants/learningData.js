@@ -224,20 +224,9 @@ export const assessmentQuestions = [
 ];
 
 export const modules = [
-    { module_id: 'icdl-computer-essentials', title: 'Computer Essentials', description: 'Foundational computing concepts: hardware, file management, and I/O devices.', topic_id: 'intro-computers' },
-    { module_id: 'icdl-online-essentials', title: 'Online Essentials', description: 'Basics of internet use, web browsing, and online safety.', topic_id: 'internet-basics' },
+    { module_id: 'icdl-essentials', title: 'ICDL Computer Essentials', description: 'Hardware, software, and the foundations of confident computer use.', topic_id: 'computer-basics' },
+    { module_id: 'icdl-productivity', title: 'ICDL Productivity', description: 'Document workflows, productivity habits, and guided practice tasks.', topic_id: 'documents' },
 ];
-
-export const moduleTopics = {
-    'icdl-computer-essentials': [
-        { id: 'intro-computers', title: 'What is a Computer?' },
-        { id: 'file-management', title: 'Understanding Files and Folders' },
-        { id: 'input-output-devices', title: 'Input and Output Devices' },
-    ],
-    'icdl-online-essentials': [
-        { id: 'internet-basics', title: 'Introduction to the Internet' },
-    ],
-};
 
 export const learnerStats = [
     { label: 'Completion', value: '72%', note: 'Across active modules' },
@@ -254,205 +243,82 @@ export const progressActivity = [
 ];
 
 export const learningContent = {
-    'intro-computers': {
-        title: 'What is a Computer?',
-        badge: 'Theory',
-        body: 'A computer is an electronic device that accepts data, processes it, stores it, and produces meaningful information. Major components include monitor, keyboard, mouse, and system unit.',
-        callout: 'Understanding core components and functions builds a foundation for digital literacy.',
-        estimated: '10 min',
-        activity: {
-            title: 'Identify Computer Components',
-            intro: 'Observe a nearby computer and identify monitor, keyboard, mouse, and system unit. State whether each is input or output and explain its function.',
-            hint: 'Think about what the device receives (input) and what it produces (output).',
-            items: [
-                { id: 'monitor', label: 'Monitor' },
-                { id: 'keyboard', label: 'Keyboard' },
-                { id: 'mouse', label: 'Mouse' },
-            ],
-            targets: [
-                {
-                    id: 'display',
-                    label: 'Displays output',
-                    description: 'Device that shows visual output from the computer.',
-                    correctItem: 'Monitor',
-                },
-                {
-                    id: 'input-text',
-                    label: 'Text input',
-                    description: 'Device used primarily to enter text and commands.',
-                    correctItem: 'Keyboard',
-                },
-                {
-                    id: 'pointer',
-                    label: 'Pointer device',
-                    description: 'Device used to select and interact with items on screen.',
-                    correctItem: 'Mouse',
-                },
-            ],
-        },
-        exercise: {
-            title: 'Knowledge Check: Computer Components',
-            question: 'Which of the following is primarily an output device?',
-            options: ['Keyboard', 'Monitor', 'Mouse', 'Scanner'],
-            answer: 1,
-        },
-    },
-    'file-management': {
-        title: 'Understanding Files and Folders',
-        badge: 'Theory',
-        body: 'Files store information; folders organize files. Use meaningful names, consistent folders, and backups to manage digital content effectively.',
-        callout: 'Good file organization reduces confusion and the risk of data loss.',
-        estimated: '12 min',
-        activity: {
-            title: 'Create and Organize Folders',
-            intro: 'Create a folder named "EDUTURE Practice" and add subfolders Notes and Assignments. Create a file and move it as instructed.',
-            hint: 'Use meaningful file names and logical subfolders.',
-            items: [
-                { id: 'notes', label: 'Notes' },
-                { id: 'assignments', label: 'Assignments' },
-                { id: 'projects', label: 'Projects' },
-            ],
-            targets: [
-                { id: 'organize', label: 'Organize', description: 'Group related files into folders.', correctItem: 'notes' },
-                { id: 'save', label: 'Save', description: 'Place the file in the appropriate folder.', correctItem: 'assignments' },
-                { id: 'archive', label: 'Archive', description: 'Keep past work in Projects or Archives.', correctItem: 'projects' },
-            ],
-        },
-        exercise: {
-            title: 'Knowledge Check: File Organization',
-            question: 'What is the best practice for organizing files?',
-            options: ['Store all files in one folder', 'Create subfolders by category and use meaningful names', 'Use only numbers as file names', 'Never create backups'],
-            answer: 1,
-        },
-    },
-    'input-output-devices': {
-        title: 'Input and Output Devices',
-        badge: 'Theory',
-        body: 'Input devices allow data entry (keyboard, mouse); output devices present results (monitor, printer).',
-        callout: 'Recognising device roles helps you troubleshoot and use systems effectively.',
-        estimated: '10 min',
-        activity: {
-            title: 'Classify Computer Devices',
-            intro: 'Classify the listed devices as input or output.',
-            hint: 'Consider whether the device primarily receives user data or presents information.',
-            items: [
-                { id: 'mouse', label: 'Mouse' },
-                { id: 'monitor', label: 'Monitor' },
-                { id: 'printer', label: 'Printer' },
-            ],
-            targets: [
-                { id: 'input', label: 'Input', description: 'Devices that send data to the computer', correctItem: 'mouse' },
-                { id: 'output', label: 'Output', description: 'Devices that present information', correctItem: 'monitor' },
-                { id: 'output2', label: 'Output - printing', description: 'Devices that produce printed documents', correctItem: 'printer' },
-            ],
-        },
-        exercise: {
-            title: 'Knowledge Check: Device Classification',
-            question: 'Which device is primarily used as an input device?',
-            options: ['Monitor', 'Microphone', 'Speaker', 'Printer'],
-            answer: 1,
-        },
-    },
-    'internet-basics': {
-        title: 'Introduction to the Internet',
-        badge: 'Theory',
-        body: 'The internet is a global network that connects computers and devices worldwide and enables browsing, email, online learning, and communication.',
-        callout: 'The web lets you access and share knowledge across the globe.',
-        estimated: '10 min',
-        activity: {
-            title: 'Open and Explore a Website',
-            intro: 'Visit an educational website, identify the address bar, search box and navigation menu, and summarise what you learned.',
-            hint: 'Use the address bar to enter a URL and the search box to find topics within a site.',
-            items: [
-                { id: 'address', label: 'Address bar' },
-                { id: 'search', label: 'Search box' },
-                { id: 'nav', label: 'Navigation' },
-            ],
-            targets: [
-                { id: 'locate', label: 'Locate', description: 'Find where the URL appears', correctItem: 'address' },
-                { id: 'find', label: 'Find', description: 'Use site search to locate content', correctItem: 'search' },
-                { id: 'navigate', label: 'Navigate', description: 'Use menus to move between sections', correctItem: 'nav' },
-            ],
-        },
-        exercise: {
-            title: 'Knowledge Check: Internet Basics',
-            question: 'What does a web address (URL) identify?',
-            options: ['Only the computer model', 'The specific location of a resource on the internet', 'Your password', 'Your email account only'],
-            answer: 1,
-        },
-    },
-    // Backward-compatible aliases for legacy topic links.
     'computer-basics': {
         title: 'What is a Computer?',
         badge: 'Theory',
-        body: 'A computer is an electronic device that accepts data, processes it, stores it, and produces meaningful information. Major components include monitor, keyboard, mouse, and system unit.',
-        callout: 'Understanding core components and functions builds a foundation for digital literacy.',
-        estimated: '10 min',
+        body: 'A computer is an electronic device that processes information through hardware and software working in coordination. It stores, retrieves, and transforms data to help people solve problems, create content, and communicate efficiently.',
+        callout: 'A computer is not just a device you use. It is a system that constantly translates human intent into machine operations.',
+        estimated: '12 min',
         activity: {
-            title: 'Identify Computer Components',
-            intro: 'Observe a nearby computer and identify monitor, keyboard, mouse, and system unit. State whether each is input or output and explain its function.',
-            hint: 'Think about what the device receives (input) and what it produces (output).',
+            title: 'Match the hardware roles',
+            intro: 'Drag each component into the description that fits it best. You can also click a component and then click a target card to place it.',
+            hint: 'The CPU processes, RAM holds active work, and the hard drive keeps files for later.',
             items: [
-                { id: 'monitor', label: 'Monitor' },
-                { id: 'keyboard', label: 'Keyboard' },
-                { id: 'mouse', label: 'Mouse' },
+                { id: 'cpu', label: 'CPU' },
+                { id: 'ram', label: 'RAM' },
+                { id: 'hard-drive', label: 'Hard Drive' },
             ],
             targets: [
-                { id: 'display', label: 'Displays output', description: 'Device that shows visual output from the computer.', correctItem: 'Monitor' },
-                { id: 'input-text', label: 'Text input', description: 'Device used primarily to enter text and commands.', correctItem: 'Keyboard' },
-                { id: 'pointer', label: 'Pointer device', description: 'Device used to select and interact with items on screen.', correctItem: 'Mouse' },
+                {
+                    id: 'processing',
+                    label: 'Processing core',
+                    description: "The main chip that carries out instructions and coordinates most of the computer's work.",
+                    correctItem: 'CPU',
+                },
+                {
+                    id: 'memory',
+                    label: 'Working memory',
+                    description: 'Temporary memory that keeps active data close at hand while programs are running.',
+                    correctItem: 'RAM',
+                },
+                {
+                    id: 'storage',
+                    label: 'Long-term storage',
+                    description: 'The place where files remain saved even after the power is turned off.',
+                    correctItem: 'Hard Drive',
+                },
             ],
-        },
-        exercise: {
-            title: 'Knowledge Check: Computer Components',
-            question: 'Which of the following is primarily an output device?',
-            options: ['Keyboard', 'Monitor', 'Mouse', 'Scanner'],
-            answer: 1,
         },
     },
     documents: {
-        title: 'Understanding Files and Folders',
+        title: 'Working with Documents',
         badge: 'Theory',
-        body: 'Files store information; folders organize files. Use meaningful names, consistent folders, and backups to manage digital content effectively.',
-        callout: 'Good file organization reduces confusion and the risk of data loss.',
-        estimated: '12 min',
+        body: 'Document workflows bring structure to everyday productivity tasks. Good organization, consistent naming, and regular backups help learners move confidently between creation, review, and sharing.',
+        callout: 'Clarity improves speed. A clean document process reduces the need to rethink simple steps.',
+        estimated: '10 min',
         activity: {
-            title: 'Create and Organize Folders',
-            intro: 'Create a folder named "EDUTURE Practice" and add subfolders Notes and Assignments. Create a file and move it as instructed.',
-            hint: 'Use meaningful file names and logical subfolders.',
+            title: 'Build a document workflow',
+            intro: 'Match each workflow step to the description it belongs to. The cards update as you move them, so you can see the process unfold.',
+            hint: 'Draft comes first, review comes next, and backup protects the final copy.',
             items: [
-                { id: 'notes', label: 'Notes' },
-                { id: 'assignments', label: 'Assignments' },
-                { id: 'projects', label: 'Projects' },
+                { id: 'draft', label: 'Draft' },
+                { id: 'review', label: 'Review' },
+                { id: 'backup', label: 'Backup' },
             ],
             targets: [
-                { id: 'organize', label: 'Organize', description: 'Group related files into folders.', correctItem: 'notes' },
-                { id: 'save', label: 'Save', description: 'Place the file in the appropriate folder.', correctItem: 'assignments' },
-                { id: 'archive', label: 'Archive', description: 'Keep past work in Projects or Archives.', correctItem: 'projects' },
+                {
+                    id: 'create',
+                    label: 'Create',
+                    description: 'Shape the first version of the document and get the ideas onto the page.',
+                    correctItem: 'Draft',
+                },
+                {
+                    id: 'check',
+                    label: 'Check',
+                    description: 'Read through the work, fix mistakes, and improve the final message.',
+                    correctItem: 'Review',
+                },
+                {
+                    id: 'protect',
+                    label: 'Protect',
+                    description: 'Keep a safe copy so the document can be restored if something goes wrong.',
+                    correctItem: 'Backup',
+                },
             ],
-        },
-        exercise: {
-            title: 'Knowledge Check: File Organization',
-            question: 'What is the best practice for organizing files?',
-            options: ['Store all files in one folder', 'Create subfolders by category and use meaningful names', 'Use only numbers as file names', 'Never create backups'],
-            answer: 1,
         },
     },
 };
 
 export function getCurrentLearnerId(user) {
     return user?.learner_id || 0;
-}
-
-export function getModuleForTopic(topicId) {
-    for (const [moduleId, topics] of Object.entries(moduleTopics)) {
-        if (topics.some(t => t.id === topicId)) {
-            return moduleId;
-        }
-    }
-    return 'icdl-computer-essentials';
-}
-
-export function getTopicsInModule(moduleId) {
-    return moduleTopics[moduleId] || [];
 }

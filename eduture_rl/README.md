@@ -83,14 +83,14 @@ This repository can run with the frontend and backend in one Vercel project:
 1. Set the frontend API base to `/api` so browser requests stay on the same origin.
 2. Deploy the repo with the root `vercel.json` and `api/index.py` entrypoint.
 3. Set backend environment variables in Vercel, especially:
-	- `SECRET_KEY`
-	- `DATABASE_URL`
-	- `CORS_ORIGINS` to your deployed frontend origin
-	- `TRUSTED_HOSTS` to include your Vercel domain, for example `*.vercel.app`
-	- `GOOGLE_OAUTH_ENABLED=true`
-	- `GOOGLE_OAUTH_REDIRECT_URI=https://<your-domain>/api/auth/google/callback`
-	- `GOOGLE_OAUTH_FRONTEND_SUCCESS_URL=https://<your-domain>/login?oauth=success`
-	- `GOOGLE_OAUTH_FRONTEND_ERROR_URL=https://<your-domain>/login?oauth=error`
+   - `SECRET_KEY`
+   - `DATABASE_URL`
+   - `CORS_ORIGINS` to your deployed frontend origin
+   - `TRUSTED_HOSTS` to include your Vercel domain, for example `*.vercel.app`
+   - `GOOGLE_OAUTH_ENABLED=true`
+   - `GOOGLE_OAUTH_REDIRECT_URI=https://<your-domain>/api/auth/google/callback`
+   - `GOOGLE_OAUTH_FRONTEND_SUCCESS_URL=https://<your-domain>/login?oauth=success`
+   - `GOOGLE_OAUTH_FRONTEND_ERROR_URL=https://<your-domain>/login?oauth=error`
 
 Google Sign-In must use the deployed callback URL exactly as registered in Google Cloud Console. If you use a custom Vercel domain, register that exact domain too.
 
